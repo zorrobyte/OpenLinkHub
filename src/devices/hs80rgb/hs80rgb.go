@@ -974,6 +974,16 @@ func (d *Device) getDeviceProfile() {
 			}
 		}
 	}
+
+	if d.DeviceProfile == nil {
+		logger.Log(logger.Fields{"serial": d.Serial}).Warn("No active profile found. Creating default profile")
+		defaultBrightness := uint8(100)
+		d.DeviceProfile = &DeviceProfile{
+			Active:           true,
+			BrightnessSlider: &defaultBrightness,
+		}
+	}
+
 }
 
 // setCpuTemperature will store current CPU temperature

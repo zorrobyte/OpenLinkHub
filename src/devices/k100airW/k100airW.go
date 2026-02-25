@@ -940,6 +940,14 @@ func (d *Device) getDeviceProfile() {
 			}
 		}
 	}
+
+	if d.DeviceProfile == nil {
+		logger.Log(logger.Fields{"serial": d.Serial}).Warn("No active profile found. Creating default profile")
+		d.DeviceProfile = &DeviceProfile{
+			Active: true,
+		}
+	}
+
 }
 
 // setSleepTimer will set device sleep timer
