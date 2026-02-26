@@ -87,6 +87,9 @@ import (
 	"OpenLinkHub/src/devices/platinum"
 	"OpenLinkHub/src/devices/psudongle"
 	"OpenLinkHub/src/devices/psuhid"
+	"OpenLinkHub/src/devices/razeraccessory"
+	"OpenLinkHub/src/devices/razerkbd"
+	"OpenLinkHub/src/devices/razerkraken"
 	"OpenLinkHub/src/devices/sabreprocs"
 	"OpenLinkHub/src/devices/sabrergbpro"
 	"OpenLinkHub/src/devices/sabrergbproWU"
@@ -156,6 +159,7 @@ var (
 	expectedPermissions = []os.FileMode{os.FileMode(0600), os.FileMode(0660)}
 	vendorId            = uint16(6940)  // Corsair
 	scufVendorId        = uint16(11925) // Scuf
+	razerVendorId       = uint16(0x1532) // Razer
 	interfaceId         = 0
 	devices             = make(map[string]*common.Device)
 	deviceList          = make(map[string]Device)
@@ -490,6 +494,12 @@ func InitManual(productId uint16, key string) {
 		logger.Log(logger.Fields{"error": err, "vendorId": scufVendorId}).Fatal("Unable to enumerate devices")
 	}
 
+	// Enumerate all Razer devices
+	err = hid.Enumerate(razerVendorId, productId, enum)
+	if err != nil {
+		logger.Log(logger.Fields{"error": err, "vendorId": razerVendorId}).Fatal("Unable to enumerate devices")
+	}
+
 	if device.ProductId > 0 && len(device.Path) > 0 {
 		if slices.Contains(config.GetConfig().Exclude, productId) {
 			logger.Log(logger.Fields{"productId": productId}).Warn("Product excluded via config.json")
@@ -580,6 +590,12 @@ func Init() {
 	err = hid.Enumerate(scufVendorId, hid.ProductIDAny, enum)
 	if err != nil {
 		logger.Log(logger.Fields{"error": err, "vendorId": scufVendorId}).Fatal("Unable to enumerate devices")
+	}
+
+	// Enumerate all Razer devices
+	err = hid.Enumerate(razerVendorId, hid.ProductIDAny, enum)
+	if err != nil {
+		logger.Log(logger.Fields{"error": err, "vendorId": razerVendorId}).Fatal("Unable to enumerate devices")
 	}
 
 	// Memory
@@ -797,19 +813,38 @@ var deviceRegisterMap = map[uint16]Product{
 	14853: {4, 0, "SCUF ENVISION PRO V2", scufenvisionproV2WU.Init, nil},   // SCUF Envision Pro Controller V2
 	17230: {4, 0, "SCUF PC Controller Dongle", nil, scufdongle.Init},       // SCUF Gaming SCUF PC Controller Dongle
 	14856: {4, 0, "SCUF PC Controller Dongle V2", nil, scufdongleV2.Init},  // SCUF Envision Pro Wireless USB Receiver V2
+	// Razer devices
+	0x0287: {3, 0, "Razer BlackWidow V4", razerkbd.Init, nil},              // Razer BlackWidow V4 Keyboard (interface 3 per OpenRGB)
+	0x0C06: {0, 0, "Razer Goliathus Chroma 3XL", razeraccessory.Init, nil}, // Razer Goliathus Chroma 3XL Mousepad
+	0x00A4: {0, 0, "Razer Mouse Dock Pro", razeraccessory.Init, nil},       // Razer Mouse Dock Pro
+	0x0527: {3, 0, "Razer Kraken Ultimate", razerkraken.Init, nil},         // Razer Kraken Ultimate Headset (interface 3, UP 0x0C, U 0x01)
+}
+
+// getVendorId returns the vendor ID for a given product ID
+func getVendorId(productId uint16) uint16 {
+	// Razer PIDs: 0x0287, 0x0C06, 0x00A4, 0x0527 (and future additions)
+	switch productId {
+	case 0x0287, 0x0C06, 0x00A4, 0x0527:
+		return razerVendorId
+	case 17229, 14853, 17230, 14856:
+		return scufVendorId
+	default:
+		return vendorId
+	}
 }
 
 // initializeDevice will initialize a device
 func initializeDevice(productId uint16, key, productPath string) {
 	callback, ok := deviceRegisterMap[productId]
 	if ok {
+		vid := getVendorId(productId)
 		if callback.DeviceRegister != nil {
 			initWG.Add(1)
 			go func(vid, pid uint16, serial, path string, cb deviceRegister) {
 				defer initWG.Done()
 				dev := cb(vid, pid, serial, path)
 				addDevice(dev)
-			}(vendorId, productId, key, productPath, callback.DeviceRegister)
+			}(vid, productId, key, productPath, callback.DeviceRegister)
 		}
 
 		if callback.DeviceRegisterEx != nil {
@@ -818,7 +853,7 @@ func initializeDevice(productId uint16, key, productPath string) {
 				defer initWG.Done()
 				dev := cb(vid, pid, serial, path, addDevice)
 				addDevice(dev)
-			}(vendorId, productId, key, productPath, callback.DeviceRegisterEx)
+			}(vid, productId, key, productPath, callback.DeviceRegisterEx)
 		}
 	}
 }
