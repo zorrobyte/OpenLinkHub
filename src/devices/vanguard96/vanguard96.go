@@ -2830,7 +2830,7 @@ func (d *Device) writeKeyAssignment(data []byte) {
 
 	_, err = d.transfer(cmdKeyAssignment, buffer)
 	if err != nil {
-		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
+		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to endpoint")
 	}
 
 	_, err = d.transfer(cmdCloseEndpoint, nil)

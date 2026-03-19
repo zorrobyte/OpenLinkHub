@@ -320,6 +320,9 @@ func (d *Device) StopDirty() uint8 {
 
 // SetConnected will change connected status
 func (d *Device) SetConnected(value bool) {
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+	}
 	d.Connected = value
 }
 
@@ -1616,7 +1619,6 @@ func (d *Device) setDeviceColor(dpi bool) {
 			}
 		}
 		d.writeColor(buf)
-		time.Sleep(1000 * time.Millisecond)
 	}
 
 	if d.DeviceProfile.RGBProfile == "mouse" {
@@ -2301,7 +2303,7 @@ func (d *Device) transfer(endpoint, buffer []byte) ([]byte, error) {
 		return bufferR, err
 	}
 
-	if _, err := d.dev.Dev.Read(bufferR); err != nil {
+	if _, err := d.dev.Dev.ReadWithTimeout(bufferR, 1000*time.Millisecond); err != nil {
 		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to read data from device")
 		return bufferR, err
 	}

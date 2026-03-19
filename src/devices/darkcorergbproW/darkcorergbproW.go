@@ -2185,7 +2185,7 @@ func (d *Device) startQueueWorker() {
 			binary.LittleEndian.PutUint16(buffer[0:2], uint16(len(buf)))
 			copy(buffer[headerWriteSize:], buf)
 
-			_, err := d.transferWithTimeout(cmdWriteColor, buffer)
+			_, err := d.transfer(cmdWriteColor, buffer)
 			if err != nil {
 				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
 			}
@@ -2267,7 +2267,7 @@ func (d *Device) writeColorCluster(data []byte, _ int) {
 	binary.LittleEndian.PutUint16(buffer[0:2], uint16(len(buf)))
 	copy(buffer[headerWriteSize:], buf)
 
-	_, err := d.transferWithTimeout(cmdWriteColor, buffer)
+	_, err := d.transfer(cmdWriteColor, buffer)
 	if err != nil {
 		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
 	}
@@ -2301,7 +2301,7 @@ func (d *Device) writeKeyAssignmentData(data []byte) {
 
 	_, err := d.transfer(cmdOpenWriteEndpoint, nil)
 	if err != nil {
-		logger.Log(logger.Fields{"error": err, "vendorId": d.VendorId}).Error("Unable to open write endpoint")
+		logger.Log(logger.Fields{"error": err, "vendorId": d.VendorId}).Warn("Unable to open write endpoint")
 		return
 	}
 
@@ -2542,39 +2542,8 @@ func (d *Device) transfer(endpoint, buffer []byte) ([]byte, error) {
 		return bufferR, err
 	}
 
-	if _, err := d.dev.Dev.Read(bufferR); err != nil {
-		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to read data from device")
-		return bufferR, err
-	}
-	return bufferR, nil
-}
-
-// transferWithTimeout will send data to a device and retrieve device output with timeout
-func (d *Device) transferWithTimeout(endpoint, buffer []byte) ([]byte, error) {
-	if d.Exit {
-		return nil, nil
-	}
-
-	d.dev.Mutex.Lock()
-	defer d.dev.Mutex.Unlock()
-
-	bufferW := make([]byte, bufferSizeWrite)
-	bufferW[1] = d.Endpoint
-	endpointHeaderPosition := bufferW[headerSize : headerSize+len(endpoint)]
-	copy(endpointHeaderPosition, endpoint)
-	if len(buffer) > 0 {
-		copy(bufferW[headerSize+len(endpoint):headerSize+len(endpoint)+len(buffer)], buffer)
-	}
-
-	bufferR := make([]byte, bufferSize)
-
-	if _, err := d.dev.Dev.Write(bufferW); err != nil {
-		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to a device")
-		return bufferR, err
-	}
-
-	if _, err := d.dev.Dev.ReadWithTimeout(bufferR, 100*time.Millisecond); err != nil {
-		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to read data from device")
+	if _, err := d.dev.Dev.ReadWithTimeout(bufferR, 1000*time.Millisecond); err != nil {
+		logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Warn("Unable to read data from device")
 		return bufferR, err
 	}
 	return bufferR, nil

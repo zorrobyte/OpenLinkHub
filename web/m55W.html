@@ -91,6 +91,24 @@
                                 </div>
                                 {{ end }}
 
+                                {{ if eq .Device.Usb false }}
+                                <!-- Sleep -->
+                                <div class="settings-row">
+                                    <span class="settings-label text-ellipsis">{{ .Lang "txtSleepTimer" }}</span>
+                                    <label for="sleepTimer">
+                                        <select id="sleepTimer" class="system-select auto-width compact mouseSleepModes" name="sleepModes">
+                                            {{ range $key, $sleepMode := $device.SleepModes }}
+                                            {{ if eq $device.DeviceProfile.SleepMode $key }}
+                                            <option value="{{ $key }}" selected>{{ $sleepMode }}</option>
+                                            {{ else }}
+                                            <option value="{{ $key }}">{{ $sleepMode }}</option>
+                                            {{ end }}
+                                            {{ end }}
+                                        </select>
+                                    </label>
+                                </div>
+                                {{ end }}
+                                
                                 <!-- Angle Snapping -->
                                 <div class="settings-row">
                                     <span title="{{ .Lang "txtAngleSnapping" }}" class="settings-label text-ellipsis">{{ .Lang "txtAngleSnapping" }}</span>

@@ -1968,7 +1968,7 @@ func (d *Device) writeColor(data []byte) {
 		} else {
 			_, err := d.transfer(dataTypeSubColor, chunk)
 			if err != nil {
-				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to endpoint")
+				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
 			}
 		}
 	}
@@ -2023,7 +2023,7 @@ func (d *Device) writeColorCluster(data []byte, _ int) {
 		} else {
 			_, err := d.transfer(dataTypeSubColor, chunk)
 			if err != nil {
-				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to endpoint")
+				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
 			}
 		}
 	}
@@ -2430,12 +2430,12 @@ func (d *Device) writeKeyAssignment(data []byte) {
 		if i == 0 {
 			_, err := d.transfer(cmdKeyAssignment, chunk)
 			if err != nil {
-				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
+				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Warn("Unable to write to endpoint")
 			}
 		} else {
 			_, err := d.transfer(cmdKeyAssignmentNext, chunk)
 			if err != nil {
-				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to endpoint")
+				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Warn("Unable to write to endpoint")
 			}
 		}
 	}

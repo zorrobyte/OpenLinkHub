@@ -541,7 +541,7 @@ func (d *Device) UpdateRgbProfileData(profileName string, profile rgb.Profile) u
 	if !d.Connected {
 		return 0
 	}
-	
+
 	if d.GetRgbProfile(profileName) == nil {
 		logger.Log(logger.Fields{"serial": d.Serial, "profile": profile}).Warn("Non-existing RGB profile")
 		return 0

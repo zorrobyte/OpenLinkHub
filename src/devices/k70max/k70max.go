@@ -2434,7 +2434,7 @@ func (d *Device) writeColor(data []byte) {
 		} else {
 			_, err := d.transfer(dataTypeSubColor, chunk)
 			if err != nil {
-				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to endpoint")
+				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
 			}
 		}
 	}
@@ -2505,7 +2505,7 @@ func (d *Device) writeColorCluster(data []byte, _ int) {
 		} else {
 			_, err := d.transfer(dataTypeSubColor, chunk)
 			if err != nil {
-				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to endpoint")
+				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Error("Unable to write to color endpoint")
 			}
 		}
 	}
