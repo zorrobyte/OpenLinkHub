@@ -114,7 +114,11 @@ $ ./install-user-space.sh
 
 # Reinicie
 $ systemctl reboot
+
+# Verificar se o serviço está em execução
+$ systemctl status --user OpenLinkHub.service
 ```
+
 ### 5. Utilisation
 ```bash
 sudo systemctl start OpenLinkHub.service

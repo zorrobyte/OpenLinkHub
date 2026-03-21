@@ -1,3 +1,31 @@
+## 2026-03-21
+
+* slipstream cleanup (648d776)
+
+## 2026-03-19
+
+* fixups (d3fef1b)
+* slipstream changes (b0673b1)
+* missing close https://github.com/jurkovic-nikola/OpenLinkHub/issues/369 (c6f4069)
+* fixups https://github.com/jurkovic-nikola/OpenLinkHub/issues/369 (d6f66ae)
+
+## 2026-03-18
+
+* slipstream changes (ad7a2c3)
+
+## 2026-03-17
+
+* log build info (b794d82)
+* slipstream, memory changes (f981899)
+
+## 2026-03-16
+
+* k100 uk layout https://github.com/jurkovic-nikola/OpenLinkHub/issues/364 (63538be)
+
+## 2026-03-14
+
+* changelog (1bed688)
+
 ## 2026-03-13
 
 * keyboard changes (a066c46)

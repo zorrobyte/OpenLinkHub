@@ -116,9 +116,12 @@ $ ./install-user-space.sh
 
 # Restart 
 $ systemctl reboot
+
+# Check if service is running
+$ systemctl status --user OpenLinkHub.service
 ```
 
-### 5. Usage
+### 5. Usage (non-immutable distributions)
 ```bash
 sudo systemctl start OpenLinkHub.service
 xdg-open http://127.0.0.1:27003
