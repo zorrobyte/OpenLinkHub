@@ -633,6 +633,10 @@ $('.sensorInfoToggle').on('click', function () {
                         <span class="settings-label text-ellipsis">PSU</span>
                         <span class="settings-label text-ellipsis">${i18n.t('txtSensorPsuInfo')}</span>
                     </div>
+                    <div class="settings-row">
+                        <span class="settings-label text-ellipsis">Multi GPUs</span>
+                        <span class="settings-label text-ellipsis">${i18n.t('txtSensorMultiGpus')}</span>
+                    </div>
                 </div>
             </div>
     

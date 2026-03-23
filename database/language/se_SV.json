@@ -620,6 +620,7 @@
     "txtFileTooLarge": "Bilden är för stor",
     "txtInvalidImageType": "Ogiltig bild",
     "txtUploadImage": "Ladda upp bild",
-    "txtLiveRgbSync": "Live RGB"
+    "txtLiveRgbSync": "Live RGB",
+    "txtSensorMultiGpus": "Använder flera GPU:er som temperaturkälla, det högsta värdet används. Kan tillämpas på alla enheter."
   }
 }

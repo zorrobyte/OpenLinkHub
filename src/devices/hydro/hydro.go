@@ -1234,6 +1234,28 @@ func (d *Device) updateDeviceSpeed() {
 								logger.Log(logger.Fields{"temperature": temp, "serial": d.Serial, "hwmonDeviceId": profiles.Device}).Warn("Unable to get hwmon temperature.")
 							}
 						}
+					case temperatures.SensorTypeMultiGPUs:
+						{
+							maxGpuTemp := float32(0)
+
+							for _, index := range config.GetConfig().NvidiaGpuIndex {
+								gpuTemp := temperatures.GetNVIDIAGpuTemperature(index)
+								if gpuTemp == 0 {
+									logger.Log(logger.Fields{
+										"temperature": gpuTemp,
+										"serial":      d.Serial,
+										"channelId":   profiles.ChannelId,
+										"gpuIndex":    index,
+									}).Warn("Unable to get GPU temperature. Setting to 50")
+									gpuTemp = 50
+								}
+
+								if gpuTemp > maxGpuTemp {
+									maxGpuTemp = gpuTemp
+								}
+							}
+							temp = maxGpuTemp
+						}
 					}
 
 					// All temps failed, default to 50

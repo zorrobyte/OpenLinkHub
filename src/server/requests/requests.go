@@ -363,13 +363,22 @@ func ProcessNewTemperatureProfile(r *http.Request) *Payload {
 		}
 	}
 
-	if sensor > 10 || sensor < 0 {
+	if sensor > 11 || sensor < 0 {
 		return &Payload{
 			Message: language.GetValue("txtInvalidSensorValue"),
 			Code:    http.StatusOK,
 			Status:  0,
 		}
 	}
+
+	if sensor == temperatures.SensorTypeMultiGPUs && len(config.GetConfig().NvidiaGpuIndex) < 2 {
+		return &Payload{
+			Message: language.GetValue("txtInvalidSensorValue"),
+			Code:    http.StatusOK,
+			Status:  0,
+		}
+	}
+	
 	deviceId := ""
 	channelId := 0
 	if sensor == temperatures.SensorTypeStorage {

@@ -33,6 +33,7 @@ const (
 	SensorTypeMultiGPU           = 8
 	SensorTypeGlobalTemperature  = 9
 	SensorTypePSU                = 10
+	SensorTypeMultiGPUs          = 11
 )
 
 type UpdateData struct {
@@ -133,6 +134,7 @@ var (
 		SensorTypeMultiGPU:           "Multi GPU",
 		SensorTypeGlobalTemperature:  "Global Temperature",
 		SensorTypePSU:                "PSU",
+		SensorTypeMultiGPUs:          "Multi GPUs",
 	}
 
 	// Defaults
@@ -483,6 +485,10 @@ func AddTemperatureProfile(newTemperatureProfile *NewTemperatureProfile) bool {
 				pf = profileNormal
 			}
 		case SensorTypeMultiGPU:
+			{
+				pf = profileNormal
+			}
+		case SensorTypeMultiGPUs:
 			{
 				pf = profileNormal
 			}

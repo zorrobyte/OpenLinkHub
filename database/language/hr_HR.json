@@ -620,6 +620,7 @@
     "txtFileTooLarge": "Slika je prevelika",
     "txtInvalidImageType": "Nevažeća slika",
     "txtUploadImage": "Prenesi sliku",
-    "txtLiveRgbSync": "RGB uživo"
+    "txtLiveRgbSync": "RGB uživo",
+    "txtSensorMultiGpus": "Koristi više GPU-ova kao izvor temperature, pri čemu se koristi veća vrijednost. Može se primijeniti na bilo koji uređaj."
   }
 }

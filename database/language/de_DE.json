@@ -620,6 +620,7 @@
     "txtFileTooLarge": "Das Bild ist zu groß",
     "txtInvalidImageType": "Ungültiges Bild",
     "txtUploadImage": "Bild hochladen",
-    "txtLiveRgbSync": "Live-RGB"
+    "txtLiveRgbSync": "Live-RGB",
+    "txtSensorMultiGpus": "Verwendet mehrere GPUs als Temperaturquelle, der höhere Wert wird verwendet. Kann auf jedes Gerät angewendet werden."
   }
 }
