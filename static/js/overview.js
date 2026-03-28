@@ -577,7 +577,7 @@ $(document).ready(function () {
             deviceSelected.length ? deviceSelected.join(',') : ''
         );
 
-        syncKeyboardSelectionMode();
+        //syncKeyboardSelectionMode();
     });
 
     $('.openKeyAssignments').on('click', function () {
@@ -4165,7 +4165,7 @@ $(document).ready(function () {
         const deviceId = $("#deviceId").val();
         const keyInfo = $(this).attr("data-info").split(";");
         const keyId = parseInt(keyInfo[0]);
-        syncKeyboardSelectionMode();
+        //syncKeyboardSelectionMode();
         noColorChange(deviceId, keyId).then(result => {
             if (result) {
                 $(".keyColorArea").hide();
