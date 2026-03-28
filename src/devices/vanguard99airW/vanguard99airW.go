@@ -57,6 +57,7 @@ type DeviceProfile struct {
 	DisableShiftTab      bool
 	DisableWinKey        bool
 	Performance          bool
+	FlashTap             *keyboards.FlashTap
 }
 
 type Device struct {
@@ -97,6 +98,7 @@ type Device struct {
 	FunctionKey            bool
 	KeyAssignmentModifiers map[int]string
 	KeyAssignmentTypes     map[int]string
+	FlashTapModes          map[int]string
 	ModifierIndex          *big.Int
 	KeyboardKey            *keyboards.Key
 	PressLoop              bool
@@ -112,35 +114,41 @@ type Device struct {
 }
 
 var (
-	pwd                     = ""
-	cmdLogin                = []byte{0x1b, 0x01}
-	cmdCloseEndpoint        = []byte{0x05, 0x01, 0x01}
-	cmdSoftwareMode         = []byte{0x01, 0x03, 0x00, 0x06}
-	cmdHardwareMode         = []byte{0x01, 0x03, 0x00, 0x01}
-	cmdOpenColorEndpoint    = []byte{0x0d, 0x01}
-	cmdSetLeds              = []byte{0x13}
-	cmdInitProtocol         = []byte{0x0b, 0x65, 0x6d}
-	cmdFlush                = []byte{0x15, 0x01}
-	cmdWrite                = []byte{0x09, 0x01}
-	cmdActivateLed          = []byte{0x65, 0x6d}
-	cmdBrightness           = []byte{0x01, 0x02, 0x00}
-	cmdGetFirmware          = []byte{0x02, 0x13}
-	dataTypeSetColor        = []byte{0x7e, 0x20, 0x01}
-	cmdSleep                = []byte{0x01, 0x0e, 0x00}
-	cmdBatteryLevel         = []byte{0x02, 0x0f}
-	cmdWriteColor           = []byte{0x06, 0x01}
-	cmdWriteColorExtra      = []byte{0x06, 0x00}
-	cmdWriteExtra           = []byte{0x07, 0x01}
-	cmdBluetoothMode        = []byte{0x01, 0x3a, 0x00, 0x02}
-	cmdUsbMode              = map[int][]byte{0: {0x02, 0x3a, 0x00, 0x00}, 1: {0x01, 0x3a, 0x00, 0x00}}
-	cmdOpenEndpoint         = []byte{0x0d, 0x01, 0x02}
-	cmdKeyAssignment        = []byte{0x06, 0x01}
-	cmdKeyAssignmentNext    = []byte{0x07, 0x01}
-	cmdPerformance          = []byte{0x01, 0x4a, 0x00}
-	cmdWritePerformance     = []byte{0x01}
-	cmdConnectionMode       = []byte{0x01, 0x3a}
-	dataTypeSetColorExtra   = []byte{0x2b, 0x00}
-	cmdHeartbeat            = []byte{0x12}
+	pwd                   = ""
+	cmdLogin              = []byte{0x1b, 0x01}
+	cmdCloseEndpoint      = []byte{0x05, 0x01, 0x01}
+	cmdSoftwareMode       = []byte{0x01, 0x03, 0x00, 0x06}
+	cmdHardwareMode       = []byte{0x01, 0x03, 0x00, 0x01}
+	cmdOpenColorEndpoint  = []byte{0x0d, 0x01}
+	cmdSetLeds            = []byte{0x13}
+	cmdInitProtocol       = []byte{0x0b, 0x65, 0x6d}
+	cmdFlush              = []byte{0x15, 0x01}
+	cmdWrite              = []byte{0x09, 0x01}
+	cmdActivateLed        = []byte{0x65, 0x6d}
+	cmdBrightness         = []byte{0x01, 0x02, 0x00}
+	cmdGetFirmware        = []byte{0x02, 0x13}
+	dataTypeSetColor      = []byte{0x7e, 0x20, 0x01}
+	cmdSleep              = []byte{0x01, 0x0e, 0x00}
+	cmdBatteryLevel       = []byte{0x02, 0x0f}
+	cmdWriteColor         = []byte{0x06, 0x01}
+	cmdWriteColorExtra    = []byte{0x06, 0x00}
+	cmdWriteExtra         = []byte{0x07, 0x01}
+	cmdBluetoothMode      = []byte{0x01, 0x3a, 0x00, 0x02}
+	cmdUsbMode            = map[int][]byte{0: {0x02, 0x3a, 0x00, 0x00}, 1: {0x01, 0x3a, 0x00, 0x00}}
+	cmdOpenEndpoint       = []byte{0x0d, 0x01, 0x02}
+	cmdKeyAssignment      = []byte{0x06, 0x01}
+	cmdKeyAssignmentNext  = []byte{0x07, 0x01}
+	cmdPerformance        = []byte{0x01, 0x4a, 0x00}
+	cmdWritePerformance   = []byte{0x01}
+	cmdConnectionMode     = []byte{0x01, 0x3a}
+	dataTypeSetColorExtra = []byte{0x2b, 0x00}
+	cmdHeartbeat          = []byte{0x12}
+	cmdFlashTap           = []byte{0x01, 0xfb, 0x00}
+	cmdFlashTapKeys       = map[int][]byte{
+		0: {0x01, 0xfe, 0x00},
+		1: {0x01, 0xff, 0x00},
+	}
+	cmdFlashTapMode         = []byte{0x01, 0xfc, 0x00}
 	bufferSize              = 64
 	bufferSizeWrite         = bufferSize + 1
 	headerSize              = 4
@@ -150,8 +158,11 @@ var (
 	defaultLayout           = "vanguard99air-default-US"
 	keyAssignmentLength     = 141
 	transferTimeout         = 500
-	rgbProfileUpgrade       = []string{"gradient", "pastelrainbow", "pastelspiralrainbow"}
-	rgbModes                = []string{
+	noFlashTapSet           = map[uint16]struct{}{
+		130: {}, 131: {}, 132: {}, 133: {}, 134: {}, 135: {},
+	}
+	rgbProfileUpgrade = []string{"gradient", "pastelrainbow", "pastelspiralrainbow"}
+	rgbModes          = []string{
 		"watercolor",
 		"visor",
 		"rainbowwave",
@@ -228,6 +239,11 @@ func Init(vendorId, slipstreamId, productId uint16, dev *common.Slipstream, endp
 			6: "Media Control",
 			7: "Horizontal Scroll",
 		},
+		FlashTapModes: map[int]string{
+			0: "Neutral",
+			1: "Last Priority",
+			2: "First Priority",
+		},
 		UIKeyboard:    "keyboard-6",
 		UIKeyboardRow: "keyboard-row-22",
 		MacroTracker:  make(map[int]macro.Tracker),
@@ -287,6 +303,59 @@ func (d *Device) StopDirty() uint8 {
 	d.Connected = false
 	logger.Log(logger.Fields{"serial": d.Serial, "product": d.Product}).Info("Device stopped")
 	return 1
+}
+
+// setupFlashTap will setup FlashTap
+func (d *Device) setupFlashTap() {
+	d.deviceLock.Lock()
+	defer d.deviceLock.Unlock()
+
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	if d.DeviceProfile.FlashTap == nil {
+		return
+	}
+
+	flashTap := d.DeviceProfile.FlashTap
+
+	buf := make([]byte, 1)
+	buf[0] = byte(flashTap.Active)
+
+	if flashTap.Active == 1 {
+		_, err := d.transfer(cmdFlashTap, buf)
+		if err != nil {
+			logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Warn("Unable to setup Flash Tap")
+			return
+		}
+
+		for key, val := range flashTap.Keys {
+			buf[0] = byte(val.KeyData)
+			_, err = d.transfer(cmdFlashTapKeys[key], buf)
+			if err != nil {
+				logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Warn("Unable to setup Flash Tap Key")
+				continue
+			}
+		}
+
+		if flashTap.Mode < 0 || flashTap.Mode > 2 {
+			flashTap.Mode = 0
+		}
+
+		buf[0] = byte(flashTap.Mode)
+		_, err = d.transfer(cmdFlashTapMode, buf)
+		if err != nil {
+			logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Warn("Unable to setup Flash Tap Mode")
+			return
+		}
+	} else {
+		_, err := d.transfer(cmdFlashTap, buf)
+		if err != nil {
+			logger.Log(logger.Fields{"error": err, "serial": d.Serial}).Warn("Unable to setup Flash Tap")
+			return
+		}
+	}
 }
 
 // setupKeyAssignment will setup keyboard keys
@@ -417,6 +486,7 @@ func (d *Device) Connect() {
 		d.setBrightnessLevel() // Brightness
 		d.setSleepTimer()      // Sleep
 		d.setupPerformance()   // Performance
+		d.setupFlashTap()      // FlashTap
 	}
 }
 
@@ -748,6 +818,25 @@ func (d *Device) saveDeviceProfile() {
 			6: {Red: 0, Green: 0, Blue: 255},
 			7: {Red: 255, Green: 0, Blue: 0},
 		}
+		deviceProfile.FlashTap = &keyboards.FlashTap{
+			Active: 0,
+			Mode:   1,
+			Keys: map[int]keyboards.FlashTapKey{
+				0: {
+					Name:    "A",
+					KeyData: 4,
+				},
+				1: {
+					Name:    "D",
+					KeyData: 7,
+				},
+			},
+			Color: rgb.Color{
+				Red:   250,
+				Green: 200,
+				Blue:  0,
+			},
+		}
 	} else {
 		if len(d.DeviceProfile.Layout) == 0 {
 			deviceProfile.Layout = "US"
@@ -759,6 +848,30 @@ func (d *Device) saveDeviceProfile() {
 			deviceProfile.SleepMode = 15
 		} else {
 			deviceProfile.SleepMode = d.DeviceProfile.SleepMode
+		}
+
+		if d.DeviceProfile.FlashTap == nil {
+			deviceProfile.FlashTap = &keyboards.FlashTap{
+				Active: 0,
+				Mode:   1,
+				Keys: map[int]keyboards.FlashTapKey{
+					0: {
+						Name:    "A",
+						KeyData: 4,
+					},
+					1: {
+						Name:    "D",
+						KeyData: 7,
+					},
+				},
+				Color: rgb.Color{
+					Red:   250,
+					Green: 200,
+					Blue:  0,
+				},
+			}
+		} else {
+			deviceProfile.FlashTap = d.DeviceProfile.FlashTap
 		}
 
 		// Upgrade process
@@ -1377,6 +1490,43 @@ func (d *Device) ProcessGetKeyboardKey(keyId int) interface{} {
 	return nil
 }
 
+// ProcessGetKeyboardKeys will get all keys
+func (d *Device) ProcessGetKeyboardKeys() interface{} {
+	tmp := map[int]string{}
+	for _, row := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row {
+		for keyIndex, key := range row.Keys {
+			if len(key.KeyData) == 0 {
+				continue
+			}
+
+			if key.OnlyColor {
+				continue
+			}
+
+			if hasNoFlashTap(key.KeyData[0]) {
+				continue
+			}
+			tmp[keyIndex] = key.KeyName
+		}
+	}
+	return tmp
+}
+
+// GetFlashTap will return FlashTap configuration
+func (d *Device) GetFlashTap() interface{} {
+	if d.DeviceProfile == nil {
+		return nil
+	}
+
+	if d.DeviceProfile.FlashTap == nil {
+		return nil
+	}
+
+	flashTap := d.DeviceProfile.FlashTap
+	flashTap.Modes = d.FlashTapModes
+	return flashTap
+}
+
 // ProcessGetKeyAssignmentTypes will get KeyAssignmentTypes
 func (d *Device) ProcessGetKeyAssignmentTypes() interface{} {
 	return d.KeyAssignmentTypes
@@ -1452,6 +1602,44 @@ func (d *Device) ProcessSetKeyboardPerformance(performance common.KeyboardPerfor
 	return 1
 }
 
+// ProcessSetKeyboardFlashTap will set keyboard flash tap values
+func (d *Device) ProcessSetKeyboardFlashTap(keys []int, flashTap keyboards.FlashTap) uint8 {
+	if d.DeviceProfile == nil {
+		return 0
+	}
+
+	if d.DeviceProfile.FlashTap == nil {
+		return 0
+	}
+
+	flashTap.Keys = d.DeviceProfile.FlashTap.Keys
+
+	for i := 0; i < len(keys); i++ {
+		if d.setKeyToDefault(keys[i]) == 0 {
+			continue
+		}
+		keyName, keyData := d.getFlashTapKeyData(keys[i])
+		if len(keyName) == 0 || keyData == 0 {
+			continue
+		}
+		flashTap.Keys[i] = keyboards.FlashTapKey{Name: keyName, KeyData: int(keyData)}
+	}
+
+	d.DeviceProfile.FlashTap = &flashTap
+	d.saveDeviceProfile()
+	d.setupPerformance()
+	d.setupFlashTap()
+	return 1
+}
+
+// hasNoFlashTap will check if key support flash tap
+func hasNoFlashTap(keyData uint16) bool {
+	if _, ok := noFlashTapSet[keyData]; ok {
+		return true
+	}
+	return false
+}
+
 // isFunctionKey will check if given modifier key is Function Key
 func (d *Device) isFunctionKey(keyIndex int) bool {
 	if _, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]; ok {
@@ -1466,6 +1654,37 @@ func (d *Device) isFunctionKey(keyIndex int) bool {
 		}
 	}
 	return false
+}
+
+// setKeyToDefault will set key to its default value
+func (d *Device) setKeyToDefault(keyIndex int) int {
+	for rowId, row := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row {
+		for keyId, key := range row.Keys {
+			if keyIndex == keyId {
+				if key.OnlyColor {
+					continue
+				}
+				key.Default = true
+				d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row[rowId].Keys[keyId] = key
+				return 1
+			}
+		}
+	}
+	return 0
+}
+
+// isFunctionKey will check if given modifier key is Function Key
+func (d *Device) getFlashTapKeyData(keyIndex int) (string, uint16) {
+	if _, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]; ok {
+		for _, row := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row {
+			for keyId, key := range row.Keys {
+				if keyIndex == keyId {
+					return key.KeyName, key.KeyData[0]
+				}
+			}
+		}
+	}
+	return "", 0
 }
 
 // UpdateDeviceKeyAssignment will update device key assignments

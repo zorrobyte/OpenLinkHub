@@ -803,7 +803,6 @@ func (d *Device) backendListener() {
 					d.setDeviceStatus(value, productId)
 				} else {
 					if data[3] == 0x02 || data[3] == 0x05 {
-						fmt.Println(data)
 						switch data[0] {
 						case 1:
 							d.TriggerKeyboardKeyAssignment(data)

@@ -57,6 +57,7 @@ type DeviceProfile struct {
 	Profiles             []string
 	RGBCluster           bool
 	BrightnessLevel      uint16
+	SleepMode            int
 	ControlDial          int
 	ControlDialColors    map[int]*rgb.Color
 	DisableAltTab        bool
@@ -372,46 +373,6 @@ func (d *Device) StopDirty() uint8 {
 	}()
 	logger.Log(logger.Fields{"serial": d.Serial, "product": d.Product}).Info("Device stopped")
 	return 2
-}
-
-// upgradeKeyActuation will perform upgrade of key actuation profile
-func (d *Device) upgradeKeyActuation() {
-	if d.DeviceProfile == nil {
-		return
-	}
-
-	keyboard, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]
-	if !ok {
-		return
-	}
-
-	for rowId, row := range keyboard.Row {
-		for keyId, key := range row.Keys {
-			if len(key.KeyData) == 0 {
-				continue
-			}
-
-			if key.ActuationPoint == 0 {
-				key.ActuationPoint = 20
-			}
-
-			if key.ActuationResetPoint == 0 {
-				key.ActuationResetPoint = 19
-			}
-
-			if key.SecondaryActuationPoint == 0 {
-				key.SecondaryActuationPoint = 35
-			}
-
-			if key.SecondaryActuationResetPoint == 0 {
-				key.SecondaryActuationResetPoint = 34
-			}
-			row.Keys[keyId] = key
-		}
-		keyboard.Row[rowId] = row
-	}
-	d.DeviceProfile.Keyboards[d.DeviceProfile.Profile] = keyboard
-	d.saveDeviceProfile()
 }
 
 // setupFlashTap will setup FlashTap
@@ -828,6 +789,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.Layout = "US"
 		deviceProfile.ControlDial = 1
 		deviceProfile.BrightnessLevel = 1000
+		deviceProfile.SleepMode = 15
 		deviceProfile.PollingRate = 4
 		deviceProfile.FlashTap = &keyboards.FlashTap{
 			Active: 0,
@@ -858,6 +820,12 @@ func (d *Device) saveDeviceProfile() {
 			7: {Red: 255, Green: 0, Blue: 0},
 		}
 	} else {
+		if d.DeviceProfile.SleepMode == 0 {
+			deviceProfile.SleepMode = 15
+		} else {
+			deviceProfile.SleepMode = d.DeviceProfile.SleepMode
+		}
+		
 		if d.DeviceProfile.FlashTap == nil {
 			deviceProfile.FlashTap = &keyboards.FlashTap{
 				Active: 0,
