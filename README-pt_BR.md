@@ -60,7 +60,7 @@ $ sudo dnf install OpenLinkHub
 - usbutils
 - libpipewire-dev
 - pkg-config
-- go 1.23.8 - https://go.dev/dl/
+- go 1.25.0 - https://go.dev/dl/
 ```bash
 # Pacotes necessários (deb)
 $ sudo apt-get install libudev-dev
