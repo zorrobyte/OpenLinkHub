@@ -4464,6 +4464,10 @@ func (d *Device) generateRgbEffect(k int, channels uint8, startTime *time.Time, 
 		r.RGBMiddleColor = d.activeRgb.RGBMiddleColor
 	}
 
+	if r.RGBMiddleColor == nil {
+		r.RGBMiddleColor = &rgb.Color{}
+	}
+
 	index := 0
 	if d.Devices[k].IsLinkAdapter {
 		index = subDeviceId

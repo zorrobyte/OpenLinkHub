@@ -1286,6 +1286,10 @@ func (d *Device) setDeviceColor() {
 						r.RGBMiddleColor = d.activeRgb.RGBMiddleColor
 					}
 
+					if r.RGBMiddleColor == nil {
+						r.RGBMiddleColor = &rgb.Color{}
+					}
+
 					index := 0
 					rgbOverride := d.getRgbOverride(k, index)
 					if rgbOverride != nil && rgbOverride.Enabled && d.Devices[k].LedChannels > 0 {

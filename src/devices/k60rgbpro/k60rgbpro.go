@@ -1561,6 +1561,10 @@ func (d *Device) setDeviceColor() {
 					r.RGBMiddleColor = d.activeRgb.RGBMiddleColor
 				}
 
+				if r.RGBMiddleColor == nil {
+					r.RGBMiddleColor = &rgb.Color{}
+				}
+
 				// Brightness
 				if d.DeviceProfile.Brightness > 0 {
 					r.RGBBrightness = rgb.GetBrightnessValue(d.DeviceProfile.Brightness)
