@@ -813,6 +813,7 @@ var deviceRegisterMap = map[uint16]Product{
 	10755: {4, 0, "VIRTUOSO MAX WIRELESS", nil, virtuosomaxdongle.Init},    // VIRTUOSO MAX WIRELESS XBOX
 	2711:  {4, 0, "HS80 MAX WIRELESS", nil, hs80maxdongle.Init},            // HS80 MAX WIRELESS
 	10767: {4, 0, "HS80 MAX WIRELESS", nil, hs80maxdongle.Init},            // HS80 MAX WIRELESS
+	10764: {3, 0, "HS80 MAX WIRELESS", nil, hs80maxdongle.Init},            // HS80 MAX WIRELESS for XBOX Gaming Receiver
 	6993:  {1, 0, "DARK CORE RGB SE", nil, darkcorergbsesongle.Init},       // DARK CORE RGB SE Wireless USB Receiver
 	2660:  {3, 0, "HEADSET DONGLE", nil, headsetdongle.Init},               // Headset dongle
 	2667:  {3, 0, "HEADSET DONGLE", nil, headsetdongle.Init},               // Headset dongle
