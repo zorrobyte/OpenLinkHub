@@ -22,18 +22,18 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"github.com/sstallion/go-hid"
 	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/sstallion/go-hid"
 )
 
 type RGBOverride struct {
@@ -916,7 +916,7 @@ func (d *Device) loadDeviceProfiles() {
 		}
 
 		fileName := strings.Split(fi.Name(), ".")[0]
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", fileName); !m {
+		if !common.AlphanumericDashRegex.MatchString(fileName) {
 			continue
 		}
 
@@ -1850,7 +1850,7 @@ func (d *Device) UpdateDeviceLcdRotation(channelId int, rotation uint8) uint8 {
 // UpdateDeviceLcdImage will update device LCD image
 func (d *Device) UpdateDeviceLcdImage(channelId int, image string) uint8 {
 	if d.HasLCD {
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", image); !m {
+		if !common.AlphanumericRegex.MatchString(image) {
 			return 0
 		}
 		if len(lcd.GetLcdImages()) == 0 {
@@ -4928,7 +4928,7 @@ func (d *Device) setupLCDImage() {
 									}
 
 									if image, ok := d.DeviceProfile.LCDImages[device.ChannelId]; ok {
-										if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", image); !m {
+										if !common.AlphanumericRegex.MatchString(image) {
 											d.DeviceProfile.LCDModes[device.ChannelId] = 0
 											d.saveDeviceProfile()
 											continue

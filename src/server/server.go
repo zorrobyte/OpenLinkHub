@@ -7,6 +7,7 @@ package server
 import (
 	"OpenLinkHub/src/audio"
 	"OpenLinkHub/src/backup"
+	"OpenLinkHub/src/common"
 	"OpenLinkHub/src/config"
 	"OpenLinkHub/src/dashboard"
 	"OpenLinkHub/src/devices"
@@ -28,7 +29,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -2300,7 +2300,7 @@ func getVar(path string, r *http.Request) (string, bool) {
 		return "", false
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-;:]+$", value); !m {
+	if !common.AlphanumericDashSemiColon.MatchString(value) {
 		return "", false
 	}
 
@@ -2312,7 +2312,7 @@ func getVarLast(r *http.Request) (string, bool) {
 	parts := strings.Split(r.URL.Path, "/")
 	value := parts[len(parts)-1]
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-;:]+$", value); !m {
+	if !common.AlphanumericDashSemiColon.MatchString(value) {
 		return "", false
 	}
 	return value, true
@@ -2327,7 +2327,7 @@ func getDeviceID(uri string, r *http.Request) (string, bool) {
 	}
 
 	value := parts[0]
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-;:]+$", value); !m {
+	if !common.AlphanumericDashSemiColon.MatchString(value) {
 		return "", false
 	}
 	return value, true

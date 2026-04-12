@@ -18,14 +18,14 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"github.com/sstallion/go-hid"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/sstallion/go-hid"
 )
 
 // DeviceProfile struct contains all device profile
@@ -527,7 +527,7 @@ func (d *Device) loadDeviceProfiles() {
 		}
 
 		fileName := strings.Split(fi.Name(), ".")[0]
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", fileName); !m {
+		if !common.AlphanumericDashRegex.MatchString(fileName) {
 			continue
 		}
 
@@ -1160,7 +1160,7 @@ func (d *Device) UpdateDeviceLcdImage(_ int, image string) uint8 {
 			return 0
 		}
 
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", d.DeviceProfile.LCDImage); !m {
+		if !common.AlphanumericRegex.MatchString(d.DeviceProfile.LCDImage) {
 			return 0
 		}
 
@@ -1557,7 +1557,7 @@ func (d *Device) loadLcdImage() uint8 {
 		return 0
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", d.DeviceProfile.LCDImage); !m {
+	if !common.AlphanumericRegex.MatchString(d.DeviceProfile.LCDImage) {
 		return 0
 	}
 

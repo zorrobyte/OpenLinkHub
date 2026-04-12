@@ -12,6 +12,21 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"image"
+	"image/color"
+	"image/gif"
+	"image/jpeg"
+	"io"
+	"math"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
+	"slices"
+	"strconv"
+	"strings"
+	"sync"
+
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 	"github.com/sstallion/go-hid"
@@ -23,21 +38,6 @@ import (
 	"golang.org/x/image/font/opentype"
 	"golang.org/x/image/webp"
 	_ "golang.org/x/image/webp"
-	"image"
-	"image/color"
-	"image/gif"
-	"image/jpeg"
-	"io"
-	"math"
-	"mime/multipart"
-	"net/http"
-	"os"
-	"path/filepath"
-	"regexp"
-	"slices"
-	"strconv"
-	"strings"
-	"sync"
 )
 
 const (
@@ -403,7 +403,6 @@ func interpolateColor(c1, c2 color.RGBA, t float64) color.RGBA {
 // PerformImageUpload will handle image upload
 func PerformImageUpload(w http.ResponseWriter, r *http.Request) {
 	const maxUploadSize = 5 * 1024 * 1024 // 5MB
-	var validFilename = regexp.MustCompile(`^[A-Za-z0-9]+$`)
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Use POST to upload image file", http.StatusMethodNotAllowed)
@@ -431,7 +430,7 @@ func PerformImageUpload(w http.ResponseWriter, r *http.Request) {
 
 	ext := strings.ToLower(filepath.Ext(handler.Filename))
 	name := strings.TrimSuffix(filepath.Base(handler.Filename), filepath.Ext(handler.Filename))
-	if !validFilename.MatchString(name) {
+	if !common.AlphanumericRegex.MatchString(name) {
 		http.Error(w, "Invalid filename. Only letters and numbers allowed", http.StatusBadRequest)
 		return
 	}
@@ -1185,7 +1184,7 @@ func loadLcdImages() {
 		// Process filename
 		filename := filepath.Base(imagePath)
 		fileName := strings.TrimSuffix(filename, filepath.Ext(filename))
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", fileName); !m {
+		if !common.AlphanumericRegex.MatchString(fileName) {
 			logger.Log(logger.Fields{"error": err, "location": images, "image": imagePath}).Warn("Image name can only have letters, numbers, - and _. Please rename your image")
 			continue
 		}

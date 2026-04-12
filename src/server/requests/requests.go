@@ -24,7 +24,6 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-	"regexp"
 )
 
 // Payload contains data from a client about device speed change
@@ -206,7 +205,7 @@ func ProcessDeleteTemperatureProfile(r *http.Request) *Payload {
 		}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", profile); !m {
+	if !common.AlphanumericRegex.MatchString(profile) {
 		return &Payload{
 			Message: language.GetValue("txtProfileInvalidName"),
 			Code:    http.StatusOK,
@@ -254,7 +253,7 @@ func ProcessUpdateTemperatureProfile(r *http.Request) *Payload {
 		}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", profile); !m {
+	if !common.AlphanumericRegex.MatchString(profile) {
 		return &Payload{
 			Message: language.GetValue("txtProfileInvalidName"),
 			Code:    http.StatusOK,
@@ -301,7 +300,7 @@ func ProcessUpdateTemperatureProfileGraph(r *http.Request) *Payload {
 		}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", profile); !m {
+	if !common.AlphanumericRegex.MatchString(profile) {
 		return &Payload{
 			Message: language.GetValue("txtProfileInvalidName"),
 			Code:    http.StatusOK,
@@ -356,7 +355,7 @@ func ProcessNewTemperatureProfile(r *http.Request) *Payload {
 		}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", profile); !m {
+	if !common.AlphanumericRegex.MatchString(profile) {
 		return &Payload{
 			Message: language.GetValue("txtProfileInvalidName"),
 			Code:    http.StatusOK,
@@ -411,7 +410,7 @@ func ProcessNewTemperatureProfile(r *http.Request) *Payload {
 	temperatureInputId := ""
 	if sensor == temperatures.SensorTypeExternalHwMon {
 		hwmonDeviceId := req.HwmonDeviceId
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9_]+$", hwmonDeviceId); !m {
+		if !common.AlphanumericUnderscore.MatchString(hwmonDeviceId) {
 			return &Payload{
 				Message: language.GetValue("txtInvalidHwMon"),
 				Code:    http.StatusOK,
@@ -420,7 +419,7 @@ func ProcessNewTemperatureProfile(r *http.Request) *Payload {
 		}
 
 		temperatureInputId = req.TemperatureInputId
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9_]+$", temperatureInputId); !m {
+		if !common.AlphanumericUnderscore.MatchString(temperatureInputId) {
 			return &Payload{
 				Message: language.GetValue("txtInvalidHwMon"),
 				Code:    http.StatusOK,
@@ -429,7 +428,7 @@ func ProcessNewTemperatureProfile(r *http.Request) *Payload {
 		}
 
 		hwmonId = req.HwmonDevice
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9_:-]+$", hwmonId); !m {
+		if !common.AlphanumericUnderColon.MatchString(hwmonId) {
 			return &Payload{
 				Message: language.GetValue("txtInvalidHwMon"),
 				Code:    http.StatusOK,
@@ -448,7 +447,7 @@ func ProcessNewTemperatureProfile(r *http.Request) *Payload {
 	}
 
 	if sensor == temperatures.SensorTypeExternalExecutable {
-		if m, _ := regexp.MatchString("^[a-zA-Z0-9_\\-/]+$", req.ExternalExecutable); !m {
+		if !common.AlphanumericUnderDashPath.MatchString(req.ExternalExecutable) {
 			return &Payload{
 				Message: language.GetValue("txtInvalidExternalFile"),
 				Code:    http.StatusOK,
@@ -524,7 +523,7 @@ func ProcessChangeSpeed(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingSpeedProfile"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.Profile); !m {
+	if !common.AlphanumericRegex.MatchString(req.Profile) {
 		return &Payload{Message: language.GetValue("txtNonExistingSpeedProfile"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -532,7 +531,7 @@ func ProcessChangeSpeed(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -599,7 +598,7 @@ func ProcessOperatingMode(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -639,7 +638,7 @@ func ProcessUpdateRgbProfile(r *http.Request) *Payload {
 	if len(deviceId) < 1 {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 	if devices.GetDevice(req.DeviceId) == nil {
@@ -760,7 +759,7 @@ func ProcessLcdChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -807,7 +806,7 @@ func ProcessLcdProfileChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -853,11 +852,11 @@ func ProcessLcdDeviceChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.LcdSerial); !m {
+	if !common.AlphanumericRegex.MatchString(req.LcdSerial) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -908,7 +907,7 @@ func ProcessLcdRotationChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -955,7 +954,7 @@ func ProcessLcdImageChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtInvalidLcdImage"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.Image); !m {
+	if !common.AlphanumericRegex.MatchString(req.Image) {
 		return &Payload{Message: language.GetValue("txtInvalidLcdImage"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -963,7 +962,7 @@ func ProcessLcdImageChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1168,11 +1167,11 @@ func ProcessSaveUserProfile(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.UserProfileName); !m {
+	if !common.AlphanumericRegex.MatchString(req.UserProfileName) {
 		return &Payload{Message: language.GetValue("txtProfileOnlyLettersNumbers"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1218,11 +1217,11 @@ func ProcessSaveDeviceProfile(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.KeyboardProfileName); !m {
+	if !common.AlphanumericRegex.MatchString(req.KeyboardProfileName) {
 		return &Payload{Message: language.GetValue("txtProfileOnlyLettersNumbers"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1269,11 +1268,11 @@ func ProcessChangeKeyboardLayout(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.KeyboardLayout); !m {
+	if !common.AlphanumericRegex.MatchString(req.KeyboardLayout) {
 		return &Payload{Message: language.GetValue("txtProfileOnlyLettersNumbers"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1319,7 +1318,7 @@ func ProcessChangeControlDial(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1365,7 +1364,7 @@ func ProcessChangeSleepMode(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1411,7 +1410,7 @@ func ProcessChangeControllerSleepMode(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1457,7 +1456,7 @@ func ProcessChangePollingRate(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1503,7 +1502,7 @@ func ProcessChangeAngleSnapping(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1549,7 +1548,7 @@ func ProcessChangeRippleControl(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1595,7 +1594,7 @@ func ProcessChangeMotionSync(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1641,7 +1640,7 @@ func ProcessChangeAutoBrightness(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1687,7 +1686,7 @@ func ProcessChangeButtonOptimization(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1733,7 +1732,7 @@ func ProcessChangeLeftHandMode(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1779,7 +1778,7 @@ func ProcessChangeLiftHeight(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1825,7 +1824,7 @@ func ProcessChangeDebounceTime(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -1866,7 +1865,7 @@ func ProcessChangeKeyAssignment(r *http.Request) *Payload {
 	if len(req.DeviceId) == 0 {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 	if devices.GetDevice(req.DeviceId) == nil {
@@ -1945,7 +1944,7 @@ func ProcessChangeKeyActuation(r *http.Request) *Payload {
 	if len(req.DeviceId) == 0 {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 	if devices.GetDevice(req.DeviceId) == nil {
@@ -2009,7 +2008,7 @@ func ProcessChangeMuteIndicator(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2055,7 +2054,7 @@ func ProcessActiveNoiseCancellation(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2101,7 +2100,7 @@ func ProcessSidetone(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2147,7 +2146,7 @@ func ProcessSidetoneValue(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2197,7 +2196,7 @@ func ProcessUpdateWheelOption(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2242,11 +2241,11 @@ func ProcessDeleteKeyboardProfile(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.KeyboardProfileName); !m {
+	if !common.AlphanumericRegex.MatchString(req.KeyboardProfileName) {
 		return &Payload{Message: language.GetValue("txtProfileOnlyLettersNumbers"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2294,11 +2293,11 @@ func ProcessChangeKeyboardProfile(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.KeyboardProfileName); !m {
+	if !common.AlphanumericRegex.MatchString(req.KeyboardProfileName) {
 		return &Payload{Message: language.GetValue("txtProfileOnlyLettersNumbers"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2344,11 +2343,11 @@ func ProcessChangeUserProfile(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.UserProfileName); !m {
+	if !common.AlphanumericRegex.MatchString(req.UserProfileName) {
 		return &Payload{Message: language.GetValue("txtProfileOnlyLettersNumbers"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2394,11 +2393,11 @@ func ProcessDeleteUserProfile(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.UserProfileName); !m {
+	if !common.AlphanumericRegex.MatchString(req.UserProfileName) {
 		return &Payload{Message: language.GetValue("txtProfileOnlyLettersNumbers"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2450,7 +2449,7 @@ func ProcessBrightnessChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2496,7 +2495,7 @@ func ProcessBrightnessChangeGradual(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2538,7 +2537,7 @@ func ProcessPositionChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2582,7 +2581,7 @@ func ProcessLabelChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtInvalidLabel"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9#.:_ -]*$", req.Label); !m {
+	if !common.AlphanumericDisplayName.MatchString(req.Label) {
 		return &Payload{Message: language.GetValue("txtInvalidLabelCharacters"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2594,7 +2593,7 @@ func ProcessLabelChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2649,7 +2648,7 @@ func ProcessManualChangeSpeed(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2694,7 +2693,7 @@ func ProcessChangeColor(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingSpeedProfile"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.Profile); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.Profile) {
 		return &Payload{Message: language.GetValue("txtNonExistingRgbProfile"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2771,7 +2770,7 @@ func ProcessChangeLinkAdapterColor(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingLinkAdapter"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.Profile); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.Profile) {
 		return &Payload{Message: language.GetValue("txtNonExistingRgbProfile"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -2819,7 +2818,7 @@ func ProcessChangeLinkAdapterColorBulk(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingSpeedProfile"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.Profile); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.Profile) {
 		return &Payload{Message: language.GetValue("txtNonExistingRgbProfile"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -3781,7 +3780,7 @@ func ProcessNewMacroProfile(r *http.Request) *Payload {
 		}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.MacroName); !m {
+	if !common.AlphanumericRegex.MatchString(req.MacroName) {
 		return &Payload{
 			Message: language.GetValue("txtProfileInvalidName"),
 			Code:    http.StatusOK,
@@ -3905,7 +3904,7 @@ func ProcessLedChange(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -3945,7 +3944,7 @@ func ProcessGetKeyboardKey(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -3991,7 +3990,7 @@ func ProcessGetKeyboardKeys(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4036,7 +4035,7 @@ func ProcessGetChannelDevice(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4082,7 +4081,7 @@ func ProcessSetKeyboardPerformance(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4129,7 +4128,7 @@ func ProcessSetKeyboardFlashTap(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4190,7 +4189,7 @@ func ProcessGetRgbOverride(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4245,7 +4244,7 @@ func ProcessSetRgbOverride(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4299,7 +4298,7 @@ func ProcessSetRgbTemperatureProbe(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4367,7 +4366,7 @@ func ProcessGetLedData(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4422,7 +4421,7 @@ func ProcessSetLedData(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4477,7 +4476,7 @@ func ProcessSetOpenRgbIntegration(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4521,7 +4520,7 @@ func ProcessSetRgbCluster(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4566,7 +4565,7 @@ func ProcessSetKeyboardLiveSync(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4599,7 +4598,7 @@ func ProcessSetKeyboardControlDialColors(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9]+$", req.DeviceId); !m {
+	if !common.AlphanumericRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4667,7 +4666,7 @@ func ProcessControllerVibration(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4720,7 +4719,7 @@ func ProcessControllerEmulation(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4764,7 +4763,7 @@ func ProcessGetControllerGraph(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4809,7 +4808,7 @@ func ProcessSetControllerGraph(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4856,7 +4855,7 @@ func ProcessNewGradientColor(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4907,7 +4906,7 @@ func ProcessDeleteGradientColor(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -4960,7 +4959,7 @@ func ProcessCommanderDuoOverride(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -5012,7 +5011,7 @@ func ProcessAddDashboardDevice(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -5047,7 +5046,7 @@ func ProcessRemoveDashboardDevice(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
@@ -5082,7 +5081,7 @@ func ProcessUpdateDeviceEqualizer(r *http.Request) *Payload {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
-	if m, _ := regexp.MatchString("^[a-zA-Z0-9-]+$", req.DeviceId); !m {
+	if !common.AlphanumericDashRegex.MatchString(req.DeviceId) {
 		return &Payload{Message: language.GetValue("txtNonExistingDevice"), Code: http.StatusOK, Status: 0}
 	}
 
