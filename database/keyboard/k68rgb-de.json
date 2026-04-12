@@ -1551,7 +1551,7 @@
           }
         },
         "117": {
-          "keyName": ", <",
+          "keyName": ",",
           "width": 65,
           "height": 70,
           "left": 15,
@@ -1567,7 +1567,7 @@
           }
         },
         "118": {
-          "keyName": ". >",
+          "keyName": ".",
           "width": 65,
           "height": 70,
           "left": 15,
@@ -1583,7 +1583,7 @@
           }
         },
         "119": {
-          "keyName": "/ ?",
+          "keyName": "-",
           "width": 65,
           "height": 70,
           "left": 15,
