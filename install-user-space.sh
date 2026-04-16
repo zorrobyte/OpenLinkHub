@@ -67,9 +67,17 @@ fi
 echo "Preparing permission file..."
 sed -i -e "s/$SEARCH_FOR_GROUP/$REPLACE_WITH/g" "$PERMISSION_FILE"
 
+# Check if sudo is available
+if command -v sudo &>/dev/null; then
+    PRIVILEGED_CMD="sudo"
+else
+    echo "sudo not found. Falling back to run0"
+    PRIVILEGED_CMD="run0 -i"
+fi
+
 echo "Running privileged operations in one batch..."
 
-run0 -i bash <<EOF
+$PRIVILEGED_CMD bash <<EOF
 set -e
 
 # Create group if needed
