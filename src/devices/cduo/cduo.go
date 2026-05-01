@@ -65,6 +65,7 @@ var (
 	maxBufferSizePerRequest    = 61
 	i2cPrefix                  = "i2c"
 	rgbProfileUpgrade          = []string{
+		"arc",
 		"nebula",
 		"marquee",
 		"rotarystack",
@@ -74,8 +75,10 @@ var (
 		"pastelrainbow",
 		"pastelspiralrainbow",
 		"probe-temperature",
+		"rain",
 	}
 	rgbModes = []string{
+		"arc",
 		"circle",
 		"circleshift",
 		"colorpulse",
@@ -89,6 +92,7 @@ var (
 		"nebula",
 		"off",
 		"probe-temperature",
+		"rain",
 		"rainbow",
 		"pastelrainbow",
 		"rotarystack",
@@ -973,6 +977,16 @@ func (d *Device) setDeviceColor() {
 					case "pastelspiralrainbow":
 						{
 							r.PastelSpiralRainbow(startTime)
+							buff = append(buff, r.Output...)
+						}
+					case "arc":
+						{
+							r.Arc(startTime)
+							buff = append(buff, r.Output...)
+						}
+					case "rain":
+						{
+							r.Rain(startTime)
 							buff = append(buff, r.Output...)
 						}
 					case "watercolor":

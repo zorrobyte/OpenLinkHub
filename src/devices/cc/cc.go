@@ -71,8 +71,20 @@ var (
 	lcdBufferSize              = 1024
 	maxLCDBufferSizePerRequest = lcdBufferSize - lcdHeaderSize
 	i2cPrefix                  = "i2c"
-	rgbProfileUpgrade          = []string{"nebula", "marquee", "rotarystack", "sequential", "spiralrainbow", "gradient", "pastelrainbow", "pastelspiralrainbow"}
-	rgbModes                   = []string{
+	rgbProfileUpgrade          = []string{
+		"arc",
+		"nebula",
+		"marquee",
+		"rotarystack",
+		"sequential",
+		"spiralrainbow",
+		"gradient",
+		"pastelrainbow",
+		"pastelspiralrainbow",
+		"rain",
+	}
+	rgbModes = []string{
+		"arc",
 		"circle",
 		"circleshift",
 		"colorpulse",
@@ -87,6 +99,7 @@ var (
 		"nebula",
 		"led",
 		"off",
+		"rain",
 		"rainbow",
 		"pastelrainbow",
 		"rotarystack",
@@ -1245,6 +1258,16 @@ func (d *Device) setDeviceColor() {
 					case "pastelspiralrainbow":
 						{
 							r.PastelSpiralRainbow(startTime)
+							buff = append(buff, r.Output...)
+						}
+					case "arc":
+						{
+							r.Arc(startTime)
+							buff = append(buff, r.Output...)
+						}
+					case "rain":
+						{
+							r.Rain(startTime)
 							buff = append(buff, r.Output...)
 						}
 					case "watercolor":

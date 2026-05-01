@@ -156,8 +156,15 @@ var (
 	defaultSpeedValue          = 100
 	maximumLedAmount           = 408
 	i2cPrefix                  = "i2c"
-	rgbProfileUpgrade          = []string{"gradient", "pastelrainbow", "pastelspiralrainbow"}
-	rgbModes                   = []string{
+	rgbProfileUpgrade          = []string{
+		"arc",
+		"gradient",
+		"pastelrainbow",
+		"pastelspiralrainbow",
+		"rain",
+	}
+	rgbModes = []string{
+		"arc",
 		"circle",
 		"circleshift",
 		"colorpulse",
@@ -168,6 +175,7 @@ var (
 		"gpu-temperature",
 		"gradient",
 		"off",
+		"rain",
 		"rainbow",
 		"pastelrainbow",
 		"rotator",
@@ -2170,6 +2178,16 @@ func (d *Device) setDeviceColor(resetColor bool) {
 						case "pastelrainbow":
 							{
 								r.PastelRainbow(startTime)
+								buff = append(buff, r.Output...)
+							}
+						case "arc":
+							{
+								r.Arc(startTime)
+								buff = append(buff, r.Output...)
+							}
+						case "rain":
+							{
+								r.Rain(startTime)
 								buff = append(buff, r.Output...)
 							}
 						case "watercolor":
