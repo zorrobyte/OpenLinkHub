@@ -16,6 +16,7 @@ import (
 	"OpenLinkHub/src/language"
 	"OpenLinkHub/src/logger"
 	"OpenLinkHub/src/macro"
+	"OpenLinkHub/src/media"
 	"OpenLinkHub/src/metrics"
 	"OpenLinkHub/src/monitor"
 	"OpenLinkHub/src/motherboards"
@@ -34,6 +35,7 @@ func Start() {
 	config.Init()       // Configuration
 	logger.Init()       // Logger
 	display.Init()      // Displays
+	media.Init()        // Media client
 	audio.Init()        // Audio
 	dashboard.Init()    // Dashboard
 	systeminfo.Init()   // Build system info
@@ -58,4 +60,5 @@ func Stop() {
 	devices.Stop()      // Devices
 	inputmanager.Stop() // Cleanup virtual devices
 	audio.StopAudio()   // Virtual Audio
+	media.Stop()        // Media client
 }
