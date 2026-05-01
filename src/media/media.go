@@ -1,6 +1,6 @@
 package media
 
-// Package: monitor
+// Package: media
 // Author: Nikola Jurkovic
 // License: GPL-3.0 or later
 
