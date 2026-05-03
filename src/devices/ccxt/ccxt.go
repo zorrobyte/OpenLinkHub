@@ -3042,15 +3042,8 @@ func (d *Device) updateDeviceSpeed() {
 						if fans < 20 && !profiles.ZeroRpm {
 							fans = 20
 						}
-
-						if device.ContainsPump {
-							if pump < 50 {
-								pump = 70
-							}
-						} else {
-							if pump < 20 {
-								pump = 30
-							}
+						if pump < 20 {
+							pump = 30
 						}
 						if pump > 100 {
 							pump = 100
@@ -3091,8 +3084,8 @@ func (d *Device) updateDeviceSpeed() {
 										profile.Fans = 20
 									}
 
-									if profile.Pump < 50 {
-										profile.Pump = 50
+									if profile.Pump < 20 {
+										profile.Pump = 30
 									}
 
 									if profile.Pump > 100 {
@@ -3129,13 +3122,6 @@ func (d *Device) UpdateDeviceSpeed(channelId int, value uint16) uint8 {
 
 		if value < 20 {
 			value = 20
-		}
-
-		// Minimal pump speed should be 50%
-		if device.ContainsPump {
-			if value < 50 {
-				value = 50
-			}
 		}
 		channelSpeeds[device.ChannelId] = byte(value)
 		d.setSpeed(channelSpeeds, 0)
