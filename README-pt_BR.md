@@ -30,6 +30,19 @@ Gerencie iluminação RGB, velocidades de ventiladores, métricas do sistema, be
 - Tenha cuidado e divirta-se!
 - Este projeto não é um produto oficial da Corsair.
 
+## Instalação (recomendada)
+```bash
+curl -fsSL https://raw.githubusercontent.com/jurkovic-nikola/OpenLinkHub/main/remote-install.sh | bash
+```
+This script will:
+- Criar um novo grupo do sistema chamado openlinkhub
+- Adicionar seu usuário atual ao grupo openlinkhub
+- Instalar o OpenLinkHub no seu diretório pessoal
+- Criar um serviço systemd de usuário
+- Copiar 99-openlinkhub.rules para /etc/udev/rules.d/
+- Iniciar o serviço após a instalação
+- Você pode usar este script para fins de instalação ou atualização
+
 ## Instalação (automática)
 1. Baixe o pacote .deb ou .rpm da versão mais recente, dependendo da sua distribuição Linux
 2. Abra o terminal

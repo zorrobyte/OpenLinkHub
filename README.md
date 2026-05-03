@@ -31,6 +31,18 @@ Manage RGB lighting, fan speeds, system metrics, as well as keyboards, mice, and
 - Most of the devices are actually tested on live hardware.
 - Take care and have fun!
 - This project is not an official Corsair product.
+## Installation (recommended)
+```bash
+curl -fsSL https://raw.githubusercontent.com/jurkovic-nikola/OpenLinkHub/main/remote-install.sh | bash
+```
+This script will:
+- Open a new system group called openlinkhub 
+- Add your current user to openlinkhub 
+- Install OpenLinkHub in your home directory. 
+- Create a user systemd service 
+- Copy 99-openlinkhub.rules to /etc/udev/rules.d/ 
+- Start the service after installation. 
+- You can use this script for installation or upgrade purposes.
 
 ## Installation (automatic)
 1. Download either .deb or .rpm package from the latest Release, depending on your Linux distribution
