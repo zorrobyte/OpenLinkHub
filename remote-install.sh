@@ -13,7 +13,7 @@ USER_TO_CHECK="${SUDO_USER:-$USER}"
 USER_HOME="$(getent passwd "$USER_TO_CHECK" | cut -d: -f6)"
 SYSTEMD_DIR="$USER_HOME/.config/systemd/user"
 SYSTEMD_FILE="$SYSTEMD_DIR/$SERVICE_NAME"
-PRIVILEGED_CMD="sudo"
+#PRIVILEGED_CMD="sudo"
 TMP_DIR="$(mktemp -d)"
 
 if [[ -t 1 ]]; then
@@ -190,6 +190,14 @@ fi
 section "Installing permissions and udev rules"
 info "Processing $CURRENT_DIR/$PERMISSION_FILE"
 sed -i -e "s/$SEARCH_FOR_GROUP/$REPLACE_WITH/g" "$CURRENT_DIR/$PERMISSION_FILE"
+
+# Check if sudo is available
+if command -v sudo &>/dev/null; then
+    PRIVILEGED_CMD="sudo"
+else
+    echo "sudo not found. Falling back to run0"
+    PRIVILEGED_CMD="run0 -i"
+fi
 
 $PRIVILEGED_CMD bash <<EOF
 set -e

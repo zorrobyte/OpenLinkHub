@@ -29,3 +29,5 @@ flatpak-build/
 copr/
 OpenLinkHub.spec.template
 *.tar.gz
+update.json
+update.json.sig
