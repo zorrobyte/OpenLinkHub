@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>{{ .Title }}</title>
+
+    <meta name="description" content="">
+    <meta name="robots" content="all,follow">
+
+    <!-- Viewport / scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="color-scheme" content="dark">
+    <meta name="format-detection" content="telephone=no">
+
+    <!-- Scripts -->
+    <script src="/static/js/jquery-3.7.1.min.js"></script>
+    <script src="/static/js/jquery-ui.min.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/toastr.min.js"></script>
+    <script src="/static/js/toastr-init.js"></script>
+    <script src="/static/js/dataTables.min.js"></script>
+
+    <!-- Styles -->
+    <link rel="preload" href="/static/css/themes/{{ .Dashboard.Theme }}.css" as="style">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap-icons.min.css" rel="stylesheet" >
+    <link href="/static/css/toastr.min.css" rel="stylesheet">
+    <link href="/static/css/jquery-ui.min.css" rel="stylesheet">
+    <link href="/static/css/themes/{{ .Dashboard.Theme }}.css" rel="stylesheet">
+    <link href="/static/css/xeneon.css" rel="stylesheet">
+
+    <!-- PWA -->
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="shortcut icon" href="/static/img/favicon.ico">
+</head>
+<body class="edge-dashboard">
+<div class="edge-shell">
+    <div class="edge-layout">
+        <section class="edge-segment">
+            {{ template "xeneon-system-clock" . }}
+            {{ template "xeneon-system-weather" . }}
+        </section>
+
+        <section class="edge-segment">
+            <div class="edge-panel">
+                <div class="rings-grid">
+                    <div class="card system-card thermal-widget" id="cpuWidget" data-value="68" data-max="95" data-color="#FFC107">
+                        <div class="card-body">
+                            <div class="thermal-meta">
+                                <div class="big-label">AMD Ryzen 9 9950X 16-Core Processor</div>
+                            </div>
+                            <div class="ring-chart">
+                                <svg viewBox="0 0 120 120" aria-hidden="true">
+                                    <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+                                    <circle class="ring-progress" cx="60" cy="60" r="46"></circle>
+                                </svg>
+                                <div class="center">
+                                    <div class="small">
+                                        <div class="thermal-temp">68</div>
+                                    </div>
+                                    <div class="medium">°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card system-card thermal-widget" id="gpuWidget" data-value="54" data-max="90" data-color="#38bdf8">
+                        <div class="card-body">
+                            <div class="thermal-meta">
+                                <div class="big-label">NVIDIA GeForce RTX 4090</div>
+                            </div>
+                            <div class="ring-chart">
+                                <svg viewBox="0 0 120 120" aria-hidden="true">
+                                    <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+                                    <circle class="ring-progress" cx="60" cy="60" r="46"></circle>
+                                </svg>
+                                <div class="center">
+                                    <div class="small">
+                                        <div class="thermal-temp">54</div>
+                                    </div>
+                                    <div class="medium">°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="edge-panel">
+                <div class="rings-grid">
+                    <div class="card system-card thermal-widget" id="cpuWidget" data-value="68" data-max="95" data-color="#FFC107">
+                        <div class="card-body">
+                            <div class="thermal-meta">
+                                <div class="big-label">AMD Ryzen 9 9950X 16-Core Processor</div>
+                            </div>
+                            <div class="ring-chart">
+                                <svg viewBox="0 0 120 120" aria-hidden="true">
+                                    <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+                                    <circle class="ring-progress" cx="60" cy="60" r="46"></circle>
+                                </svg>
+                                <div class="center">
+                                    <div class="small">
+                                        <div class="thermal-temp">68</div>
+                                    </div>
+                                    <div class="medium">°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card system-card thermal-widget" id="gpuWidget" data-value="54" data-max="90" data-color="#38bdf8">
+                        <div class="card-body">
+                            <div class="thermal-meta">
+                                <div class="big-label">NVIDIA GeForce RTX 4090</div>
+                            </div>
+                            <div class="ring-chart">
+                                <svg viewBox="0 0 120 120" aria-hidden="true">
+                                    <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+                                    <circle class="ring-progress" cx="60" cy="60" r="46"></circle>
+                                </svg>
+                                <div class="center">
+                                    <div class="small">
+                                        <div class="thermal-temp">54</div>
+                                    </div>
+                                    <div class="medium">°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="edge-panel">
+                <div class="rings-grid">
+                    <div class="card system-card thermal-widget" id="cpuWidget" data-value="68" data-max="95" data-color="#FFC107">
+                        <div class="card-body">
+                            <div class="thermal-meta">
+                                <div class="big-label">iCUE LINK TITAN 360 LCD</div>
+                            </div>
+                            <div class="ring-chart">
+                                <svg viewBox="0 0 120 120" aria-hidden="true">
+                                    <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+                                    <circle class="ring-progress" cx="60" cy="60" r="46"></circle>
+                                </svg>
+                                <div class="center">
+                                    <div class="small">
+                                        <div class="thermal-temp">36.1</div>
+                                    </div>
+                                    <div class="medium">°C</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card system-card thermal-widget" id="gpuWidget" data-value="54" data-max="90" data-color="#38bdf8">
+                        <div class="card-body">
+                            <div class="thermal-meta">
+                                <div class="big-label">iCUE LINK TITAN 360 LCD</div>
+                            </div>
+                            <div class="ring-chart">
+                                <svg viewBox="0 0 120 120" aria-hidden="true">
+                                    <circle class="ring-track" cx="60" cy="60" r="46"></circle>
+                                    <circle class="ring-progress" cx="60" cy="60" r="46"></circle>
+                                </svg>
+                                <div class="center">
+                                    <div class="small">
+                                        <div class="thermal-temp">2451</div>
+                                    </div>
+                                    <div class="medium">RPM</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="edge-segment">
+            {{ template "xeneon-media-player" . }}
+            {{ template "xeneon-battery-status" . }}
+        </section>
+    </div>
+</div>
+<script>
+    (function ($) {
+        const RADIUS = 46;
+        const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+        function clamp(num, min, max) {
+            return Math.min(Math.max(num, min), max);
+        }
+        function updateRing($widget, value, maxValue, options) {
+            const settings = $.extend({
+                unit: $widget.data('unit') || '',
+                label: $widget.data('label') || '',
+                color: $widget.data('color') || '#38bdf8',
+                decimals: 0
+            }, options || {});
+
+            const safeMax = Math.max(parseFloat(maxValue) || 100, 1);
+            const numericValue = parseFloat(value) || 0;
+            const percent = clamp((numericValue / safeMax) * 100, 0, 100);
+            const dashOffset = CIRCUMFERENCE * (1 - percent / 100);
+            const formattedValue = numericValue.toFixed(settings.decimals).replace(/\.0+$/, '');
+
+            $widget.attr('data-value', numericValue);
+            $widget.attr('data-max', safeMax);
+            $widget.find('.ring-progress').css({
+                stroke: settings.color,
+                strokeDasharray: CIRCUMFERENCE,
+                strokeDashoffset: dashOffset
+            });
+            $widget.find('.chart-value').text(formattedValue + settings.unit);
+            $widget.find('.chart-label').text(settings.label);
+
+            const isWarning = percent >= 80;
+            $widget.toggleClass('is-warning', isWarning);
+            $widget.find('.small-label').first().toggleClass('is-hot', isWarning);
+        }
+
+        window.setThermalValue = function (selector, value, maxValue) {
+            const $widget = $(selector);
+            updateRing($widget, value, maxValue || $widget.data('max'));
+        };
+
+        window.updateThermalWidget = function (selector, payload) {
+            const $widget = $(selector);
+            updateRing($widget, payload.value, payload.max || $widget.data('max'), payload);
+
+            if (payload.load != null) $widget.find('.js-load').text(Math.round(payload.load) + '%');
+            if (payload.fan != null) $widget.find('.js-fan').text(Math.round(payload.fan) + ' RPM');
+            if (payload.limit != null) $widget.find('.js-limit').text(Math.round(payload.limit) + '°C');
+            if (payload.vram != null) $widget.find('.js-vram').text(Number(payload.vram).toFixed(1) + ' GB');
+            if (payload.hotspot != null) $widget.find('.js-hotspot').text(Math.round(payload.hotspot) + '°C');
+        };
+
+        function bootstrapThermals() {
+            $('.thermal-widget').each(function () {
+                const $widget = $(this);
+                updateRing($widget, $widget.data('value'), $widget.data('max'));
+            });
+        }
+
+        $(function () {
+            bootstrapThermals();
+            //startDemoLoop();
+        });
+    })(jQuery);
+</script>
+<script src="/static/js/xeneon.js"></script>
+</body>
+</html>

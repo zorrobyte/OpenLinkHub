@@ -1,0 +1,19 @@
+{{ define "xeneon-system-clock" }}
+{{ $root := . }}
+<div class="edge-panel compact" id="system-clock">
+    <div class="card system-card">
+        <div class="card-body">
+            <div class="clock-box">
+                <div>
+                    <div class="clock-time" id="clockTime">20:48</div>
+                    <div class="clock-date" id="clockDate">Sunday, March 22</div>
+                </div>
+                <!--<div class="text-end">
+                    <div class="small-label mb-1">Status</div>
+                    <div class="metric-value" id="weatherRefreshState">Weather syncing</div>
+                </div>-->
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

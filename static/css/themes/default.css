@@ -3091,6 +3091,11 @@ table.dataTable.compact tbody td {
     border: 2px solid var(--good);
 }
 
+/* Xeneon Edge */
+.xeneon-edge-panel {
+    height: 150px;
+}
+
 /* Full HD */
 @media (max-width: 1920px) {
     :root {

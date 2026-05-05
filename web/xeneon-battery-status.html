@@ -1,0 +1,26 @@
+{{ define "xeneon-battery-status" }}
+{{ $root := . }}
+<div class="edge-panel compact" id="battery-status">
+    <div class="card system-card">
+        <div class="card-body">
+            <div class="metrics-list">
+                <div class="metric-row">
+                    <span class="name">VIRTUOSO MAX</span>
+                    <span class="metric-value js-cpu-usage">87%</span>
+                    <div class="metric-bar" style="--fill:87%"><span></span></div>
+                </div>
+                <div class="metric-row">
+                    <span class="name">SCIMITAR ELITE</span>
+                    <span class="metric-value js-gpu-usage">70%</span>
+                    <div class="metric-bar" style="--fill:70%"><span></span></div>
+                </div>
+                <div class="metric-row">
+                    <span class="name">K100 AIR</span>
+                    <span class="metric-value js-gpu-usage">70%</span>
+                    <div class="metric-bar" style="--fill:70%"><span></span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{ end }}

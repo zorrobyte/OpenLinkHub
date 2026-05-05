@@ -1,0 +1,28 @@
+{
+  "widgets": [
+    {
+      "id": 1,
+      "name": "Date / Time Widget",
+      "template": "xeneon-system-clock",
+      "columns": [1,3]
+    },
+    {
+      "id": 2,
+      "name": "Weather Widget",
+      "template": "xeneon-system-weather",
+      "columns": [1,3]
+    },
+    {
+      "id": 3,
+      "name": "Media Player Widget",
+      "template": "xeneon-media-player",
+      "columns": [1,3]
+    },
+    {
+      "id": 4,
+      "name": "Battery Status Widget",
+      "template": "xeneon-battery-status",
+      "columns": [1,3]
+    }
+  ]
+}
