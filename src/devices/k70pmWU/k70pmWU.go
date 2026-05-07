@@ -62,6 +62,7 @@ type DeviceProfile struct {
 	DisableShiftTab      bool
 	DisableWinKey        bool
 	Performance          bool
+	RgbOff               bool
 }
 
 type Device struct {
@@ -734,6 +735,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.LCDMode = d.DeviceProfile.LCDMode
 		deviceProfile.LCDRotation = d.DeviceProfile.LCDRotation
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved

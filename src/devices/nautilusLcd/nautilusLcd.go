@@ -35,6 +35,7 @@ type DeviceProfile struct {
 	LCDRotation uint8
 	LCDImage    string
 	Label       string
+	RgbOff      bool
 }
 
 type TemperatureProbe struct {
@@ -433,6 +434,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.LCDMode = d.DeviceProfile.LCDMode
 		deviceProfile.LCDRotation = d.DeviceProfile.LCDRotation
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved

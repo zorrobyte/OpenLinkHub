@@ -53,6 +53,7 @@ type DeviceProfile struct {
 	DisableShiftTab      bool
 	DisableWinKey        bool
 	Performance          bool
+	RgbOff               bool
 }
 
 type Device struct {
@@ -731,6 +732,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.DisableShiftTab = d.DeviceProfile.DisableShiftTab
 		deviceProfile.DisableWinKey = d.DeviceProfile.DisableWinKey
 		deviceProfile.Performance = d.DeviceProfile.Performance
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1476,6 +1478,24 @@ func (d *Device) setBrightnessLevel() {
 	}
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.Connected {
+		if d.activeRgb != nil {
+			d.activeRgb.Exit <- true
+			d.activeRgb = nil
+		}
+		d.setDeviceColor()
+	}
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	if d.DeviceProfile == nil {
@@ -1487,6 +1507,34 @@ func (d *Device) setDeviceColor() {
 		d.DeviceProfile.SlipstreamRGBProfile = "keyboard"
 	}
 
+	if d.DeviceProfile.RgbOff {
+		if keyboard, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]; ok {
+			var buf = make([]byte, keyboard.BufferSize)
+			buf[3] = 0x01
+			buf[4] = 0xff
+			buf[5] = 0
+			buf[6] = 0
+			buf[7] = 0
+			buf[8] = byte(d.KeyAmount)
+			start := 9
+			for _, row := range keyboard.Row {
+				for _, key := range row.Keys {
+					if key.NoColor {
+						continue
+					}
+					for packet := range key.PacketIndex {
+						value := key.PacketIndex[packet] / 3
+						buf[start] = byte(value)
+						start++
+					}
+				}
+			}
+			dataTypeSetColor = []byte{0x7e, 0x20, 0x01}
+			d.writeColor(buf)
+			return
+		}
+	}
+	
 	switch d.DeviceProfile.SlipstreamRGBProfile {
 	case "off":
 		{

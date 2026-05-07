@@ -63,6 +63,7 @@ type DeviceProfile struct {
 	Product string
 	Serial  string
 	FanMode int
+	RgbOff  bool
 }
 
 type Device struct {
@@ -603,6 +604,7 @@ func (d *Device) saveDeviceProfile() {
 	} else {
 		deviceProfile.Active = d.DeviceProfile.Active
 		deviceProfile.FanMode = d.DeviceProfile.FanMode
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved

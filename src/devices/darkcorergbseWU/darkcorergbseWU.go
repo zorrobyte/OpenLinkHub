@@ -51,6 +51,7 @@ type DeviceProfile struct {
 	AngleSnapping      int
 	LiftHeight         int
 	KeyAssignmentHash  string
+	RgbOff             bool
 }
 
 type ZoneColors struct {
@@ -705,6 +706,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1565,6 +1567,22 @@ func (d *Device) SaveMouseZoneColors(dpi rgb.Color, zoneColors map[int]rgb.Color
 	return 0
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	if d.DeviceProfile == nil {
@@ -1572,6 +1590,14 @@ func (d *Device) setDeviceColor() {
 		return
 	}
 
+	if d.DeviceProfile.RgbOff {
+		for _, zoneColor := range d.DeviceProfile.ZoneColors {
+			color := []byte{0x00, 0x00, 0x00}
+			d.writeColor(color, zoneColor.ColorIndex, zoneColor.ColorType)
+		}
+		return
+	}
+	
 	if d.DeviceProfile.RGBProfile == "mouse" {
 		for _, zoneColor := range d.DeviceProfile.ZoneColors {
 			if d.DeviceProfile.Brightness != 0 {

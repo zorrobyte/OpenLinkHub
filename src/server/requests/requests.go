@@ -3242,6 +3242,11 @@ func ProcessDashboardSettingsChange(r *http.Request) *Payload {
 	dash.ShowLabels = req.ShowLabels
 	dash.Theme = req.Theme
 
+	if dash.RgbOff != req.RgbOff {
+		devices.ControlDeviceRgb(req.RgbOff)
+	}
+	dash.RgbOff = req.RgbOff
+
 	status := dashboard.SaveDashboardSettings(dash, true)
 	switch status {
 	case 0:

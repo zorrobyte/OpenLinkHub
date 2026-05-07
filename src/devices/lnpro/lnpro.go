@@ -51,6 +51,7 @@ type DeviceProfile struct {
 	Labels             map[int]string
 	ExternalHubs       map[int]*ExternalHubData
 	HardwareMode       int
+	RgbOff             bool
 }
 
 type Devices struct {
@@ -684,6 +685,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1206,6 +1208,22 @@ func (d *Device) isRgbStatic() bool {
 	return false
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor(true)
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor(resetColor bool) {
 	lightChannels := 0
@@ -1221,7 +1239,7 @@ func (d *Device) setDeviceColor(resetColor bool) {
 		return
 	}
 
-	if resetColor {
+	if resetColor || d.DeviceProfile.RgbOff {
 		color := &rgb.Color{Red: 0, Green: 0, Blue: 0, Brightness: 0}
 		buff := make(map[byte][]byte)
 		for _, k := range keys {
@@ -1236,6 +1254,10 @@ func (d *Device) setDeviceColor(resetColor bool) {
 		d.writeColor(buff)
 	}
 
+	if d.DeviceProfile.RgbOff {
+		return
+	}
+	
 	// Are all devices under static mode?
 	// In static mode, we only need to send color once;
 	// there is no need for continuous packet sending.

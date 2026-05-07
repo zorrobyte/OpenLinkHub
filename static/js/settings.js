@@ -312,6 +312,7 @@ $(document).ready(function () {
     const checkboxBattery = $('#checkbox-battery');
     const checkboxTemperatureBar = $('#checkbox-temperatureBar');
     const checkboxAddDeviceToDashboard = $('#checkbox-addDeviceToDashboard');
+    const checkboxRgbOff = $('#checkbox-rgbOff');
 
     function loadDashboardSettings() {
         // Load current settings
@@ -348,6 +349,9 @@ $(document).ready(function () {
                     if (response.dashboard.addDeviceToDashboard === true) {
                         checkboxAddDeviceToDashboard.attr('Checked','Checked');
                     }
+                    if (response.dashboard.rgbOff === true) {
+                        checkboxRgbOff.attr('Checked','Checked');
+                    }
                 }
             }
         });
@@ -362,6 +366,7 @@ $(document).ready(function () {
             const v_checkboxBattery = checkboxBattery.is(':checked');
             const v_checkboxTemperatureBar = checkboxTemperatureBar.is(':checked');
             const v_checkboxAddDeviceToDashboard = checkboxAddDeviceToDashboard.is(':checked');
+            const v_checkboxRgbOff = checkboxRgbOff.is(':checked');
             const v_languageCode = $("#userLanguage").val();
             const v_theme = $("#theme").val();
 
@@ -375,6 +380,7 @@ $(document).ready(function () {
             pf["showBattery"] = v_checkboxBattery;
             pf["temperatureBar"] = v_checkboxTemperatureBar;
             pf["addDeviceToDashboard"] = v_checkboxAddDeviceToDashboard;
+            pf["rgbOff"] = v_checkboxRgbOff;
             pf["languageCode"] = v_languageCode;
             pf["theme"] = v_theme;
 

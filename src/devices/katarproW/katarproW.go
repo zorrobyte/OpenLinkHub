@@ -42,6 +42,7 @@ type DeviceProfile struct {
 	SleepMode          int
 	ButtonOptimization int
 	KeyAssignmentHash  string
+	RgbOff             bool
 }
 
 type DPIProfile struct {
@@ -1223,6 +1224,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved

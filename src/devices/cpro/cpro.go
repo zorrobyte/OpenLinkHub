@@ -61,6 +61,7 @@ type DeviceProfile struct {
 	SpeedProfiles      map[int]string
 	ExternalHubs       map[int]*ExternalHubData
 	Labels             map[int]string
+	RgbOff             bool
 }
 
 type TemperatureProbe struct {
@@ -1514,6 +1515,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1966,6 +1968,24 @@ func (d *Device) resetColor() {
 	}
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	for i := 0; i < len(d.DeviceProfile.ExternalHubs); i++ {
+		if d.activeRgb[i] != nil {
+			d.activeRgb[i].Exit <- true
+			d.activeRgb[i] = nil
+		}
+	}
+	d.setDeviceColor(true)
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor(resetColor bool) {
 	// Reset
@@ -2025,6 +2045,12 @@ func (d *Device) setDeviceColor(resetColor bool) {
 	// OpenRGB
 	if d.DeviceProfile.OpenRGBIntegration {
 		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to OpenRGB client")
+		return
+	}
+
+	// RGB Control
+	if d.DeviceProfile.RgbOff {
+		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to RGB being set to Off")
 		return
 	}
 

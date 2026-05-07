@@ -40,6 +40,7 @@ type DeviceProfile struct {
 	HeaderModes   map[int]int
 	Labels        map[int]string
 	MultiProfile  string
+	RgbOff        bool
 }
 
 type TemperatureProbe struct {
@@ -678,6 +679,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	d.DeviceProfile = deviceProfile

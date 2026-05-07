@@ -72,6 +72,7 @@ type DeviceProfile struct {
 	RightThumbStickSensitivityY uint8
 	RightThumbStickInvertY      bool
 	AnalogData                  map[int]AnalogData
+	RgbOff                      bool
 }
 
 type Device struct {
@@ -1788,6 +1789,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.RightThumbStickInvertY = d.DeviceProfile.RightThumbStickInvertY
 		deviceProfile.AnalogData = d.DeviceProfile.AnalogData
 		deviceProfile.KeyAssignmentHash = d.DeviceProfile.KeyAssignmentHash
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1897,11 +1899,53 @@ func (d *Device) initTriggerEndpoint() {
 	}
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.Connected {
+		if d.activeRgb != nil {
+			d.activeRgb.Exit <- true
+			d.activeRgb = nil
+		}
+		d.setDeviceColor()
+	}
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	buf := make([]byte, d.LEDChannels*3)
 	if d.DeviceProfile == nil {
 		logger.Log(logger.Fields{"serial": d.Serial}).Error("Unable to set color. DeviceProfile is null!")
+		return
+	}
+
+	if d.DeviceProfile.RgbOff {
+		for _, zoneColor := range d.DeviceProfile.ZoneColors {
+			zoneColorIndexRange := zoneColor.ColorIndex
+			for key, zoneColorIndex := range zoneColorIndexRange {
+				switch key {
+				case 0: // Red
+					for i := zoneColorIndex; i < 9; i++ {
+						buf[i] = 0x00
+					}
+				case 1: // Green
+					for i := zoneColorIndex; i < 9*2; i++ {
+						buf[i] = 0x00
+					}
+				case 2: // Blue
+					for i := zoneColorIndex; i < 9*3; i++ {
+						buf[i] = 0x00
+					}
+				}
+			}
+		}
+		d.writeColor(buf)
 		return
 	}
 

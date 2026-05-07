@@ -44,6 +44,7 @@ type DeviceProfile struct {
 	ExternalHubDeviceType   int
 	ExternalHubDeviceAmount int
 	HardwareMode            int
+	RgbOff                  bool
 }
 
 type Devices struct {
@@ -628,6 +629,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1130,6 +1132,22 @@ func (d *Device) isRgbStatic() bool {
 	return false
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor(true)
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor(resetColor bool) {
 	// Reset
@@ -1144,7 +1162,7 @@ func (d *Device) setDeviceColor(resetColor bool) {
 		}
 	}
 
-	if resetColor {
+	if resetColor || d.DeviceProfile.RgbOff {
 		// Reset all channels
 		color := &rgb.Color{
 			Red:        0,

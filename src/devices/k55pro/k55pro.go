@@ -57,6 +57,7 @@ type DeviceProfile struct {
 	DisableShiftTab    bool
 	DisableWinKey      bool
 	Performance        bool
+	RgbOff             bool
 }
 
 type Device struct {
@@ -662,6 +663,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.LCDMode = d.DeviceProfile.LCDMode
 		deviceProfile.LCDRotation = d.DeviceProfile.LCDRotation
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1465,11 +1467,45 @@ func (d *Device) UpdateDeviceColor(keyId, keyOption int, color rgb.Color, select
 	return 0
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 
 	if d.DeviceProfile == nil {
 		logger.Log(logger.Fields{"serial": d.Serial}).Error("Unable to set color. DeviceProfile is null!")
+		return
+	}
+
+	if d.DeviceProfile.RgbOff {
+		var buf = make([]byte, colorPacketLength)
+		keys := make([]int, 0, len(d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Zones))
+		for k := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Zones {
+			keys = append(keys, k)
+		}
+		sort.Ints(keys)
+		i := 1
+		for range keys {
+			buf[i] = 0x00
+			buf[i+6] = 0x00
+			buf[i+12] = 0x00
+			i++
+		}
+		d.writeColor(buf) // Write color once
 		return
 	}
 

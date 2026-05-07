@@ -55,6 +55,7 @@ type DeviceProfile struct {
 	DisableWinKey        bool
 	Performance          bool
 	RGBCluster           bool
+	RgbOff               bool
 }
 
 type Device struct {
@@ -771,6 +772,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.LCDMode = d.DeviceProfile.LCDMode
 		deviceProfile.LCDRotation = d.DeviceProfile.LCDRotation
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1514,6 +1516,24 @@ func (d *Device) UpdateDeviceColor(_ int, keyOption int, color rgb.Color, _ []in
 	return 0
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.Connected {
+		if d.activeRgb != nil {
+			d.activeRgb.Exit <- true
+			d.activeRgb = nil
+		}
+		d.setDeviceColor()
+	}
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	if d.DeviceProfile == nil {
@@ -1527,6 +1547,20 @@ func (d *Device) setDeviceColor() {
 
 	// Init
 	d.initLeds()
+	if d.DeviceProfile.RgbOff {
+		if _, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]; ok {
+			var buf = make([]byte, 93)
+			buf[3] = 0x01
+			buf[4] = 0xff
+			buf[5] = 0x00
+			buf[6] = 0x00
+			buf[7] = 0x00
+			dataTypeSetColor = []byte{0x7e, 0x20, 0x01}
+			d.writeColor(buf)
+			return
+		}
+	}
+
 	switch d.DeviceProfile.SlipstreamRGBProfile {
 	case "off":
 		{

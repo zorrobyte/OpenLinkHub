@@ -82,6 +82,7 @@ type DeviceProfile struct {
 	RGBPerLed          map[int]map[int]map[int]rgb.Color
 	OpenRGBIntegration bool
 	RGBCluster         bool
+	RgbOff             bool
 }
 
 type Device struct {
@@ -1018,6 +1019,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1145,6 +1147,22 @@ func (d *Device) isRgbStatic() bool {
 	return false
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	// Release existing queue
@@ -1189,6 +1207,12 @@ func (d *Device) setDeviceColor() {
 	// RGB Cluster
 	if d.DeviceProfile.RGBCluster {
 		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to RGB Cluster")
+		return
+	}
+
+	// RGB Control
+	if d.DeviceProfile.RgbOff {
+		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to RGB being set to Off")
 		return
 	}
 

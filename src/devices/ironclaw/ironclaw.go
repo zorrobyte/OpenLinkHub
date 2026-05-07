@@ -50,6 +50,7 @@ type DeviceProfile struct {
 	KeyAssignmentHash  string
 	OpenRGBIntegration bool
 	RGBCluster         bool
+	RgbOff             bool
 }
 
 type ZoneColors struct {
@@ -634,6 +635,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.OpenRGBIntegration = d.DeviceProfile.OpenRGBIntegration
 		deviceProfile.RGBCluster = d.DeviceProfile.RGBCluster
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1511,6 +1513,22 @@ func (d *Device) SaveMouseZoneColors(dpi rgb.Color, zoneColors map[int]rgb.Color
 	return 0
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	buf := map[int][]byte{}
@@ -1521,7 +1539,7 @@ func (d *Device) setDeviceColor() {
 		return
 	}
 
-	if d.DeviceProfile.OpenRGBIntegration {
+	if d.DeviceProfile.OpenRGBIntegration || d.DeviceProfile.RgbOff {
 		color := &rgb.Color{Red: 0, Green: 0, Blue: 0, Brightness: 0}
 		for i := 0; i < d.LEDChannels; i++ {
 			buf[i] = []byte{

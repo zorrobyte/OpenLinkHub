@@ -63,6 +63,7 @@ type DeviceProfile struct {
 	DisableShiftTab      bool
 	DisableWinKey        bool
 	Performance          bool
+	RgbOff               bool
 }
 
 type Device struct {
@@ -755,6 +756,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.DisableWinKey = d.DeviceProfile.DisableWinKey
 		deviceProfile.Performance = d.DeviceProfile.Performance
 		deviceProfile.ControlDialColors = d.DeviceProfile.ControlDialColors
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1759,6 +1761,24 @@ func (d *Device) setBrightnessLevel() {
 	}
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.Connected {
+		if d.activeRgb != nil {
+			d.activeRgb.Exit <- true
+			d.activeRgb = nil
+		}
+		d.setDeviceColor()
+	}
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	if d.DeviceProfile == nil {
@@ -1788,6 +1808,29 @@ func (d *Device) setDeviceColor() {
 						buf[packetIndex] = byte(key.Color.Red)
 						buf[packetIndex+1] = byte(key.Color.Green)
 						buf[packetIndex+2] = byte(key.Color.Blue)
+					}
+				}
+			}
+			d.writeColor(buf) // Write color once
+			return
+		} else {
+			logger.Log(logger.Fields{"serial": d.Serial}).Error("Unable to set color. Unknown keyboard")
+			return
+		}
+	}
+
+	if d.DeviceProfile.RgbOff {
+		var buf = make([]byte, colorPacketLength)
+		if _, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]; ok {
+			for _, rows := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row {
+				for _, key := range rows.Keys {
+					if key.NoColor {
+						continue
+					}
+					for _, packetIndex := range key.PacketIndex {
+						buf[packetIndex] = 0x00
+						buf[packetIndex+1] = 0x00
+						buf[packetIndex+2] = 0x00
 					}
 				}
 			}

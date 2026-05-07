@@ -66,6 +66,7 @@ type DeviceProfile struct {
 	RGBPerLed          map[int]map[int]map[int]rgb.Color
 	OpenRGBIntegration bool
 	RGBCluster         bool
+	RgbOff             bool
 }
 
 type DeviceList struct {
@@ -740,6 +741,22 @@ func (d *Device) setupOpenRGBController() {
 	openrgb.AddDeviceController(controller)
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	// Release existing queue
@@ -796,6 +813,12 @@ func (d *Device) setDeviceColor() {
 		return
 	}
 
+	// RGB Control
+	if d.DeviceProfile.RgbOff {
+		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to RGB being set to Off")
+		return
+	}
+	
 	// Are all devices under static mode?
 	// In static mode, we only need to send color once;
 	// there is no need for continuous packet sending.
@@ -1293,6 +1316,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.OpenRGBIntegration = d.DeviceProfile.OpenRGBIntegration
 		deviceProfile.RGBCluster = d.DeviceProfile.RGBCluster
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1773,7 +1797,7 @@ func (d *Device) ProcessSetRgbCluster(enabled bool) uint8 {
 		logger.Log(logger.Fields{"serial": d.Serial}).Warn("No compatible RGB devices found. RGB Cluster is unavailable")
 		return 0
 	}
-	
+
 	d.DeviceProfile.RGBCluster = enabled
 	d.saveDeviceProfile() // Save profile
 	if d.activeRgb != nil {

@@ -63,6 +63,7 @@ type DeviceProfile struct {
 	KeyAssignmentHash  string
 	OpenRGBIntegration bool
 	RGBCluster         bool
+	RgbOff             bool
 }
 
 type DPIProfile struct {
@@ -1544,6 +1545,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.OpenRGBIntegration = d.DeviceProfile.OpenRGBIntegration
 		deviceProfile.RGBCluster = d.DeviceProfile.RGBCluster
 		deviceProfile.MultiGesture = d.DeviceProfile.MultiGesture
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1980,6 +1982,24 @@ func (d *Device) getSniperColor() *rgb.Color {
 	return nil
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.Connected {
+		if d.activeRgb != nil {
+			d.activeRgb.Exit <- true
+			d.activeRgb = nil
+		}
+		d.setDeviceColor()
+	}
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	buf := make([]byte, d.LEDChannels*3)
@@ -1989,7 +2009,7 @@ func (d *Device) setDeviceColor() {
 	}
 
 	// OpenRGB
-	if d.DeviceProfile.OpenRGBIntegration {
+	if d.DeviceProfile.OpenRGBIntegration || d.DeviceProfile.RgbOff {
 		// DPI
 		dpiColor := d.DeviceProfile.Profiles[d.DeviceProfile.Profile].Color
 		if d.SniperMode {

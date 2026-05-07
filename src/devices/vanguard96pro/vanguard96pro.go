@@ -60,6 +60,7 @@ type DeviceProfile struct {
 	DisableWinKey   bool
 	Performance     bool
 	FlashTap        *keyboards.FlashTap
+	RgbOff          bool
 }
 
 type Device struct {
@@ -1020,6 +1021,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.DisableShiftTab = d.DeviceProfile.DisableShiftTab
 		deviceProfile.DisableWinKey = d.DeviceProfile.DisableWinKey
 		deviceProfile.Performance = d.DeviceProfile.Performance
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -2147,6 +2149,22 @@ func (d *Device) UpdateDeviceColor(keyId, keyOption int, color rgb.Color, select
 	return 0
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	if d.DeviceProfile == nil {
@@ -2162,6 +2180,36 @@ func (d *Device) setDeviceColor() {
 
 	if d.DeviceProfile.BrightnessLevel == 0 {
 		return
+	}
+
+	if d.DeviceProfile.RgbOff {
+		var buf = make([]byte, colorPacketLength)
+		if _, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]; ok {
+			for _, rows := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row {
+				for _, keys := range rows.Keys {
+					for _, packetIndex := range keys.PacketIndex {
+						buf[packetIndex] = 0x00
+						buf[packetIndex+1] = 0x00
+						buf[packetIndex+2] = 0x00
+					}
+				}
+			}
+
+			flashTap := d.DeviceProfile.FlashTap
+			if flashTap.Active == 1 {
+				for _, key := range flashTap.Keys {
+					packetIndex := key.KeyData * 3
+					buf[packetIndex] = 0x00
+					buf[packetIndex+1] = 0x00
+					buf[packetIndex+2] = 0x00
+				}
+			}
+			d.writeColor(buf) // Write color once
+			return
+		} else {
+			logger.Log(logger.Fields{"serial": d.Serial}).Error("Unable to set color. Unknown keyboard")
+			return
+		}
 	}
 
 	if d.DeviceProfile.RGBProfile == "keyboard" {

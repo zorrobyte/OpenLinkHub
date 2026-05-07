@@ -49,6 +49,7 @@ type DeviceProfile struct {
 	DynamicMode bool
 	LCDImage    string
 	Label       string
+	RgbOff      bool
 }
 
 type Button struct {
@@ -666,6 +667,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.LCDMode = d.DeviceProfile.LCDMode
 		deviceProfile.DynamicMode = d.DeviceProfile.DynamicMode
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved

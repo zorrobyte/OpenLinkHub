@@ -261,6 +261,13 @@ func ScheduleDeviceBrightness(mode uint8) {
 	}
 }
 
+// ControlDeviceRgb will disable / enable device RGB
+func ControlDeviceRgb(mode bool) {
+	for _, device := range GetDevices() {
+		CallDeviceMethod(device.Serial, "ControlDeviceRgb", mode)
+	}
+}
+
 // UpdateGlobalRgbProfile will update device RGB profile
 func UpdateGlobalRgbProfile(profile string) uint8 {
 	channelId := -1

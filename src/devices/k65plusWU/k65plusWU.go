@@ -61,6 +61,7 @@ type DeviceProfile struct {
 	DisableWinKey        bool
 	Performance          bool
 	RGBCluster           bool
+	RgbOff               bool
 }
 
 type Device struct {
@@ -703,6 +704,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.LCDMode = d.DeviceProfile.LCDMode
 		deviceProfile.LCDRotation = d.DeviceProfile.LCDRotation
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1577,6 +1579,22 @@ func (d *Device) UpdateDeviceColor(keyId, keyOption int, color rgb.Color, select
 	return 0
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	if d.DeviceProfile == nil {
@@ -1604,6 +1622,21 @@ func (d *Device) setDeviceColor() {
 
 	if d.GetRgbProfile(d.DeviceProfile.RGBProfile) == nil {
 		d.DeviceProfile.RGBProfile = "keyboard"
+	}
+
+	if d.DeviceProfile.RgbOff {
+		var buf = make([]byte, colorPacketLength)
+		for _, rows := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row {
+			for _, key := range rows.Keys {
+				for _, packetIndex := range key.PacketIndex {
+					buf[packetIndex] = 0
+					buf[packetIndex+1] = 0
+					buf[packetIndex+2] = 0
+				}
+			}
+		}
+		d.writeColor(buf) // Write color once
+		return
 	}
 
 	if d.DeviceProfile.RGBProfile == "keyboard" {

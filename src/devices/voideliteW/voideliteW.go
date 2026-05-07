@@ -58,6 +58,7 @@ type DeviceProfile struct {
 	MuteIndicator      int
 	SideTone           int
 	SideToneValue      int
+	RgbOff             bool
 }
 
 type Device struct {
@@ -860,6 +861,7 @@ func (d *Device) saveDeviceProfile() {
 
 		deviceProfile.SideTone = d.DeviceProfile.SideTone
 		deviceProfile.SideToneValue = d.DeviceProfile.SideToneValue
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1168,11 +1170,47 @@ func (d *Device) setDeviceBrightness() {
 	}
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.Connected {
+		if d.activeRgb != nil {
+			d.activeRgb.Exit <- true
+			d.activeRgb = nil
+		}
+		d.setDeviceColor()
+	}
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	buf := make([]byte, d.LEDChannels*3)
 	if d.DeviceProfile == nil {
 		logger.Log(logger.Fields{"serial": d.Serial}).Error("Unable to set color. DeviceProfile is null!")
+		return
+	}
+
+	if d.DeviceProfile.RgbOff {
+		for _, zoneColor := range d.DeviceProfile.ZoneColors {
+			zoneColorIndexRange := zoneColor.ColorIndex
+			for key, zoneColorIndex := range zoneColorIndexRange {
+				switch key {
+				case 0: // Red
+					buf[zoneColorIndex] = 0x00
+				case 1: // Green
+					buf[zoneColorIndex] = 0x00
+				case 2: // Blue
+					buf[zoneColorIndex] = 0x00
+				}
+			}
+		}
+		d.writeColor(buf)
 		return
 	}
 

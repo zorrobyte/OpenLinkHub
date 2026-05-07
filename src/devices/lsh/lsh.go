@@ -74,6 +74,7 @@ type DeviceProfile struct {
 	RGBPerLed            map[int]map[int]map[int]rgb.Color
 	OpenRGBIntegration   bool
 	RGBCluster           bool
+	RgbOff               bool
 }
 
 // LinkAdapter contains a list of supported external-LED devices connected to a LINK adapter
@@ -1491,6 +1492,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.SubDeviceRGBProfiles = d.DeviceProfile.SubDeviceRGBProfiles
 		deviceProfile.OpenRGBIntegration = d.DeviceProfile.OpenRGBIntegration
 		deviceProfile.RGBCluster = d.DeviceProfile.RGBCluster
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -4248,6 +4250,22 @@ func (d *Device) disableAllColors() {
 	d.writeColor(buffer)
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	// Reset
@@ -4290,6 +4308,12 @@ func (d *Device) setDeviceColor() {
 	// RGB Cluster
 	if d.DeviceProfile.RGBCluster {
 		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to RGB Cluster")
+		return
+	}
+
+	// RGB Control
+	if d.DeviceProfile.RgbOff {
+		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to RGB being set to Off")
 		return
 	}
 

@@ -56,6 +56,7 @@ type DeviceProfile struct {
 	LiftHeight         int
 	KeyAssignmentHash  string
 	LeftHandMode       int
+	RgbOff             bool
 }
 
 type DPIProfile struct {
@@ -1327,6 +1328,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1690,6 +1692,22 @@ func (d *Device) getSniperColor() *rgb.Color {
 	return nil
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor(true)
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor(dpi bool) {
 	buf := make([]byte, d.LEDChannels*3)
@@ -1727,6 +1745,24 @@ func (d *Device) setDeviceColor(dpi bool) {
 		}
 		d.writeColor(buf)
 		time.Sleep(1000 * time.Millisecond)
+	}
+
+	if d.DeviceProfile.RgbOff {
+		for _, zoneColor := range d.DeviceProfile.ZoneColors {
+			zoneColorIndexRange := zoneColor.ColorIndex
+			for key, zoneColorIndex := range zoneColorIndexRange {
+				switch key {
+				case 0: // Red
+					buf[zoneColorIndex] = 0x00
+				case 1: // Green
+					buf[zoneColorIndex] = 0x00
+				case 2: // Blue
+					buf[zoneColorIndex] = 0x00
+				}
+			}
+		}
+		d.writeColor(buf)
+		return
 	}
 
 	if d.DeviceProfile.RGBProfile == "mouse" {

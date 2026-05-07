@@ -65,6 +65,7 @@ type DeviceProfile struct {
 	RippleControl      int
 	MotionSync         int
 	KeyAssignmentHash  string
+	RgbOff             bool
 }
 
 type DPIProfile struct {

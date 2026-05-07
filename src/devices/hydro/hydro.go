@@ -54,6 +54,7 @@ type DeviceProfile struct {
 	RGBProfiles        map[int]string
 	SpeedProfiles      map[int]string
 	Labels             map[int]string
+	RgbOff             bool
 }
 
 type DeviceList struct {
@@ -750,6 +751,7 @@ func (d *Device) saveDeviceProfile() {
 		} else {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved

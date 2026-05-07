@@ -42,6 +42,7 @@ type DeviceProfile struct {
 	OriginalBrightness uint8
 	RGBProfile         string
 	Label              string
+	RgbOff             bool
 }
 
 type TemperatureProbe struct {
@@ -667,6 +668,7 @@ func (d *Device) saveDeviceProfile() {
 		}
 		deviceProfile.LCDMode = d.DeviceProfile.LCDMode
 		deviceProfile.LCDRotation = d.DeviceProfile.LCDRotation
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -749,6 +751,22 @@ func (d *Device) setAutoRefresh() {
 	}()
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	// Reset
@@ -777,6 +795,10 @@ func (d *Device) setDeviceColor() {
 		return
 	}
 
+	if d.DeviceProfile.RgbOff {
+		return
+	}
+	
 	if d.DeviceProfile.RGBProfile == "static" {
 		profile := d.GetRgbProfile("static")
 		if profile == nil {

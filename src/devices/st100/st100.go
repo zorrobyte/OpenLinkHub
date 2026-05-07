@@ -78,6 +78,7 @@ type DeviceProfile struct {
 	Stand              *Stand
 	Equalizers         map[int]Equalizer
 	RGBCluster         bool
+	RgbOff             bool
 }
 
 type Stand struct {
@@ -609,6 +610,7 @@ func (d *Device) saveDeviceProfile() {
 			deviceProfile.Path = d.DeviceProfile.Path
 		}
 		deviceProfile.RGBCluster = d.DeviceProfile.RGBCluster
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1209,6 +1211,22 @@ func (d *Device) SaveUserProfile(profileName string) uint8 {
 	return 0
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.activeRgb != nil {
+		d.activeRgb.Exit <- true
+		d.activeRgb = nil
+	}
+	d.setDeviceColor()
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	// Reset
@@ -1248,6 +1266,12 @@ func (d *Device) setDeviceColor() {
 		return
 	}
 
+	// RGB Control
+	if d.DeviceProfile.RgbOff {
+		logger.Log(logger.Fields{}).Info("Exiting setDeviceColor() due to RGB being set to Off")
+		return
+	}
+	
 	if d.DeviceProfile.RGBProfile == "stand" {
 		var buf = make([]byte, colorPacketLength)
 		for _, rows := range d.DeviceProfile.Stand.Row {

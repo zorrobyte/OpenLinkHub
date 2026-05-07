@@ -25,6 +25,7 @@ type Dashboard struct {
 	Celsius              bool     `json:"celsius"`
 	ShowLabels           bool     `json:"showLabels"`
 	ShowBattery          bool     `json:"showBattery"`
+	RgbOff               bool     `json:"rgbOff"`
 	TemperatureBar       bool     `json:"temperatureBar"`
 	AddDeviceToDashboard bool     `json:"addDeviceToDashboard"`
 	SidebarCollapsed     bool     `json:"sidebarCollapsed"`
@@ -45,6 +46,7 @@ var (
 		"languageCode":         "en_US",
 		"temperatureBar":       true,
 		"addDeviceToDashboard": true,
+		"rgbOff":               false,
 		"pageTitle":            "OPENLINKHUB WebUI",
 		"sidebarCollapsed":     false,
 		"devices":              []string{},
@@ -92,6 +94,7 @@ func upgradeFile() {
 			Celsius:              true,
 			ShowLabels:           true,
 			ShowBattery:          false,
+			RgbOff:               false,
 			TemperatureBar:       true,
 			AddDeviceToDashboard: true,
 			SidebarCollapsed:     false,

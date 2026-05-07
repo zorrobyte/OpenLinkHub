@@ -54,6 +54,7 @@ type DeviceProfile struct {
 	DisableShiftTab      bool
 	DisableWinKey        bool
 	Performance          bool
+	RgbOff               bool
 }
 
 type Device struct {
@@ -767,6 +768,7 @@ func (d *Device) saveDeviceProfile() {
 		deviceProfile.DisableWinKey = d.DeviceProfile.DisableWinKey
 		deviceProfile.Performance = d.DeviceProfile.Performance
 		deviceProfile.ControlDialColors = d.DeviceProfile.ControlDialColors
+		deviceProfile.RgbOff = d.DeviceProfile.RgbOff
 	}
 
 	// Fix profile paths if folder database/ folder is moved
@@ -1512,6 +1514,24 @@ func (d *Device) setBrightnessLevel() {
 	}
 }
 
+// ControlDeviceRgb will change device brightness via schedulerSchedulerBrightness
+func (d *Device) ControlDeviceRgb(value bool) {
+	if d.DeviceProfile == nil {
+		return
+	}
+
+	d.DeviceProfile.RgbOff = value
+	d.saveDeviceProfile()
+
+	if d.Connected {
+		if d.activeRgb != nil {
+			d.activeRgb.Exit <- true
+			d.activeRgb = nil
+		}
+		d.setDeviceColor()
+	}
+}
+
 // setDeviceColor will activate and set device RGB
 func (d *Device) setDeviceColor() {
 	if d.DeviceProfile == nil {
@@ -1523,6 +1543,46 @@ func (d *Device) setDeviceColor() {
 		d.DeviceProfile.SlipstreamRGBProfile = "keyboard"
 	}
 
+	if d.DeviceProfile.RgbOff {
+		if keyboard, ok := d.DeviceProfile.Keyboards[d.DeviceProfile.Profile]; ok {
+			var colorIndex = make([]byte, 0)
+			var buf = make([]byte, keyboard.BufferSize)
+			buf[3] = 0x01
+			buf[4] = 0xff
+			buf[5] = 0x00
+			buf[6] = 0x00
+			buf[7] = 0x00
+			buf[8] = byte(d.KeyAmount) + 6 // Key amount + Extra control dial, 6 LEDs
+			for _, row := range d.DeviceProfile.Keyboards[d.DeviceProfile.Profile].Row {
+				for _, key := range row.Keys {
+					if key.NoColor {
+						continue
+					}
+					for packet := range key.PacketIndex {
+						value := key.PacketIndex[packet] / 3
+						colorIndex = append(colorIndex, byte(value))
+					}
+				}
+			}
+
+			// Control dial
+			base := 139
+			for i := 1; i <= 6; i++ {
+				colorIndex = append(colorIndex, byte(base+i))
+			}
+
+			// Sort in descending order
+			sort.Slice(colorIndex, func(i, j int) bool {
+				return colorIndex[i] > colorIndex[j] // Reverse order
+			})
+			copy(buf[9:], colorIndex)
+
+			dataTypeSetColor = []byte{0x7e, 0x20, 0x01}
+			d.writeColor(buf)
+			return
+		}
+	}
+	
 	switch d.DeviceProfile.SlipstreamRGBProfile {
 	case "off":
 		{
