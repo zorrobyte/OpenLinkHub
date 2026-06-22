@@ -177,4 +177,6 @@ SUBSYSTEMS=="usb", ATTRS{idVendor}=="1532", ATTRS{idProduct}=="0287", MODE="0660
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1532", ATTRS{idProduct}=="0c06", MODE="0660", OWNER="openlinkhub"
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1532", ATTRS{idProduct}=="00a4", MODE="0660", OWNER="openlinkhub"
 SUBSYSTEMS=="usb", ATTRS{idVendor}=="1532", ATTRS{idProduct}=="0527", MODE="0660", OWNER="openlinkhub"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1532", ATTRS{idProduct}=="00cc", MODE="0660", OWNER="openlinkhub"
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="1532", ATTRS{idProduct}=="00cd", MODE="0660", OWNER="openlinkhub"
 KERNEL=="uinput", MODE="0660", GROUP="input", OPTIONS+="static_node=uinput", OWNER="openlinkhub"

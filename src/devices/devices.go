@@ -891,13 +891,15 @@ var deviceRegisterMap = map[uint16]Product{
 	0x0C06: {0, 0, "Razer Goliathus Chroma 3XL", razeraccessory.Init, nil}, // Razer Goliathus Chroma 3XL Mousepad
 	0x00A4: {0, 0, "Razer Mouse Dock Pro", razeraccessory.Init, nil},       // Razer Mouse Dock Pro
 	0x0527: {3, 0, "Razer Kraken Ultimate", razerkraken.Init, nil},         // Razer Kraken Ultimate Headset (interface 3, UP 0x0C, U 0x01)
+	0x00CC: {0, 0, "Razer Basilisk V3 Pro 35K (Wired)", razeraccessory.Init, nil},
+	0x00CD: {0, 0, "Razer Basilisk V3 Pro 35K (Wireless)", razeraccessory.Init, nil},
 }
 
 // getVendorId returns the vendor ID for a given product ID
 func getVendorId(productId uint16) uint16 {
-	// Razer PIDs: 0x0287, 0x0C06, 0x00A4, 0x0527 (and future additions)
+	// Razer PIDs: 0x0287, 0x0C06, 0x00A4, 0x0527, 0x00CC, 0x00CD (and future additions)
 	switch productId {
-	case 0x0287, 0x0C06, 0x00A4, 0x0527:
+	case 0x0287, 0x0C06, 0x00A4, 0x0527, 0x00CC, 0x00CD:
 		return razerVendorId
 	case 17229, 14853, 17230, 14856:
 		return scufVendorId

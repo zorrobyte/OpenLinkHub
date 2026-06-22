@@ -47,7 +47,7 @@ const (
 type RazerDevice struct {
 	PID           uint16
 	Name          string
-	DeviceType    string // "keyboard", "mousepad", "accessory", "headset"
+	DeviceType    string // "keyboard", "mouse", "mousepad", "accessory", "headset"
 	TransactionID byte
 	MatrixType    int
 	LEDID         byte // LED ID for effects: 0x05 (backlight) for keyboards, 0x00 for accessories
@@ -63,6 +63,8 @@ var DeviceTable = map[uint16]RazerDevice{
 	0x0C06: {0x0C06, "Razer Goliathus Chroma 3XL", "mousepad", 0x3F, MatrixTypeExtended, LEDIDZero, 1, 1, 1},
 	0x00A4: {0x00A4, "Razer Mouse Dock Pro", "accessory", 0xFF, MatrixTypeExtended, LEDIDZero, 1, 8, 8},
 	0x0527: {0x0527, "Razer Kraken Ultimate", "headset", 0x00, 0, LEDIDZero, 1, 1, 1},
+	0x00CC: {0x00CC, "Razer Basilisk V3 Pro 35K (Wired)", "mouse", 0x1F, MatrixTypeExtended, LEDIDZero, 1, 13, 13},
+	0x00CD: {0x00CD, "Razer Basilisk V3 Pro 35K (Wireless)", "mouse", 0x1F, MatrixTypeExtended, LEDIDZero, 1, 13, 13},
 }
 
 // NewReport creates a new RazerReport with the given parameters

@@ -135,6 +135,9 @@ func Init(vendorId, productId uint16, serial, path string) *common.Device {
 	icon := "icon-device.svg"
 	devType := common.DeviceTypeAccessory
 	switch razerDev.DeviceType {
+	case "mouse":
+		icon = "icon-mouse.svg"
+		devType = common.DeviceTypeMouse
 	case "mousepad":
 		icon = "icon-mousepad.svg"
 		devType = common.DeviceTypeMousemat
@@ -182,13 +185,18 @@ func Init(vendorId, productId uint16, serial, path string) *common.Device {
 	d.setupClusterController()
 
 	d.instance = &common.Device{
-		ProductType: common.ProductTypeRazerAccessory,
-		Product:     d.Product,
-		Serial:      d.Serial,
-		Firmware:    d.Firmware,
-		Image:       icon,
-		Instance:    d,
-		DeviceType:  devType,
+		ProductType: func() uint16 {
+			if razerDev.DeviceType == "mouse" {
+				return common.ProductTypeRazerMouse
+			}
+			return common.ProductTypeRazerAccessory
+		}(),
+		Product:    d.Product,
+		Serial:     d.Serial,
+		Firmware:   d.Firmware,
+		Image:      icon,
+		Instance:   d,
+		DeviceType: devType,
 	}
 
 	logger.Log(logger.Fields{"serial": d.Serial, "product": d.Product}).Info("Device successfully initialized")

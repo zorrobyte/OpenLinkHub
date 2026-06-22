@@ -209,6 +209,7 @@ const (
 	ProductTypeScufDongleV2         = 606
 	ProductTypeRazerKeyboard        = 701
 	ProductTypeRazerAccessory       = 702
+	ProductTypeRazerMouse           = 703
 	ProductTypeXeneonEdge           = 995
 	ProductTypeMotherboard          = 996
 	ProductTypeDongle               = 997
